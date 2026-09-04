@@ -7,6 +7,17 @@ Two tracks run in parallel:
 - **Design track** — this repository. Tokens, components, motion, docs, prototypes.
 - **Integration track** — the downstream LibreOffice fork. Native C++/VCL binding.
 
+> **Status accuracy (2026-09-04, nova-office-dc).** Several ✅ marks below in
+> Phases 4–12 were written ahead of the code and do not match the tree. What is
+> actually implemented today: `@nova/tokens` (4 modes, 123 contrast assertions),
+> `@nova/motion`, `@nova/icons`, `@nova/tests`, and in `@nova/components` only
+> **Button/IconButton, Input/Field/SearchInput, Kbd, Toolbar, Menu, Dialog,
+> CommandPalette** plus the `foundations/` hooks. Sidebar, Inspector, File
+> browser, Color picker, Font picker, Select, Toggle, Settings, the Workspace,
+> and the Writer/Calc/Impress scenes are **not built** — `ui/playground` is an
+> empty package. Rows are being corrected by their owning session; see
+> [COORDINATION.md](COORDINATION.md).
+
 ---
 
 ## Phase 1 — Fork and Build
@@ -18,7 +29,7 @@ Two tracks run in parallel:
 | Keep license files intact | Both | ✅ | `LICENSE` (MPL-2.0), `NOTICE`, per-file headers preserved. |
 | Branch `nova-main` | Both | ✅ | Active branch of this repo. |
 | CI (design layer) | Design | ✅ | `.github/workflows/ci.yml` |
-| CI (native build matrix macOS/Linux/Windows) | Integration | ✅ | `.github/workflows/native-build.yml` (scaffold, self-hosted runners required) |
+| CI (native build matrix macOS/Linux/Windows) | Integration | 🚧 | `engine` job in `.github/workflows/ci.yml`, gated on the `ENGINE_BUILD` repo var; needs a self-hosted runner (50 GB / 8 GB RAM) to have ever run |
 | Auto versioning | Both | ✅ | `scripts/version.mjs`, `build/versioning/` |
 | Release / debug build configs | Integration | ✅ | `build/autogen/` presets documented |
 
