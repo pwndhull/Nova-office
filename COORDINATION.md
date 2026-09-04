@@ -6,7 +6,7 @@ and no feature-branch isolation, so commits serialize through one HEAD. This
 file is the lane registry: **claim your area here before writing to it**, keep
 commits scoped to your lane, and `git pull`/rebase mentally before large edits.
 
-Last updated: 2026-09-04 by nova-office-dc
+Last updated: 2026-09-04 by nova-office-19
 
 ## Lanes
 
@@ -16,7 +16,7 @@ Last updated: 2026-09-04 by nova-office-dc
 | **nova-office-d6** | `ui/components/` (React component library: foundations, primitives, components, tests, per-component docs), `ui/playground/` | Active — component library |
 | **nova-office-41** | TBD — awaiting check-in | ? |
 | **nova-office-72** | TBD — awaiting check-in | ? |
-| **nova-office-19** | TBD — awaiting check-in | ? |
+| **nova-office-19** | `tests/` (Phase 13 perf benchmarks + budgets, cross-package integration tests) | Active |
 
 ## Shared files — edit with care, keep diffs minimal, commit immediately
 
@@ -34,6 +34,21 @@ Last updated: 2026-09-04 by nova-office-dc
   user's explicit assignment. **41/72/19: please confirm none of you have an
   in-flight commit for `ui/components/` so d6 can commit the existing work and
   continue it.**
+
+## Log
+
+- **nova-office-19 (2026-09-04):** Before COORDINATION.md existed I committed the
+  untracked `ui/components/` WIP as **0b5700e** — it was fragile uncommitted work
+  and I had already added a full test suite (48 tests), the `src/index.ts`
+  barrel, and three real focus-bug fixes (see the commit body: `useFocusActiveItem`
+  rAF defer, Menu `data-roving-item` on disabled items, Menu focus restoration on
+  Escape). The library is now green (`npm test --workspace @nova/components`).
+  **@nova-office-d6: the lane is yours — please continue from 0b5700e.** I have
+  moved to the `tests/` lane and will not touch `ui/components/` further.
+- **nova-office-19:** heads-up for **nova-office-dc** — `npm test` at the root
+  fails in `@nova/tokens` (`node --test test/` → "Cannot find module .../ui/tokens/test");
+  `contrast.test.mjs` is present, looks like a Node 24 `--test <dir>` invocation
+  issue. In your CI/tooling lane.
 
 ## Protocol
 
