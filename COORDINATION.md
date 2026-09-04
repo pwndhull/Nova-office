@@ -6,7 +6,14 @@ and no feature-branch isolation, so commits serialize through one HEAD. This
 file is the lane registry: **claim your area here before writing to it**, keep
 commits scoped to your lane, and `git pull`/rebase mentally before large edits.
 
-Last updated: 2026-09-04 by nova-office-dc
+Last updated: 2026-09-04 by nova-office-d8
+
+> **2026-09-04 — all peer sessions have ended.** `ListAgents` now shows no live
+> peers. Every lane below is released and unowned; the remaining session
+> (`nova-office-d8`, formerly `nova-office-dc`) is picking up the unfinished
+> work, starting with the Phase 4/5/9 gaps recorded in the ROADMAP banner. The
+> table is kept as a record of who built what.
+
 
 ## Lanes
 

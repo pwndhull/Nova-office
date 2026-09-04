@@ -55,81 +55,91 @@ Two tracks run in parallel:
 
 ## Phase 4 — Core Components
 
-| Component | Status |
-|-----------|--------|
-| Button, IconButton, Toggle, Input, Select | ✅ |
-| Toolbar / floating toolbar | ✅ |
-| Sidebar (collapsible) | ✅ |
-| Menu / MenuBar / ContextMenu | ✅ |
-| Dialog / Sheet | ✅ |
-| Inspector panel | ✅ |
-| File browser | ✅ |
-| Start center / Workspace | ✅ (Phase 5) |
-| Settings | ✅ (Phase 12) |
-| Color picker | ✅ |
-| Font picker | ✅ |
-| Ribbon | ⏳ (opt-in density mode of Toolbar) |
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Button / IconButton | ✅ | `primitives/Button.tsx` — loading stays focusable, `aria-pressed` toggles |
+| Input / Field / SearchInput | ✅ | `primitives/Input.tsx` — label/hint/error wiring via render prop |
+| Kbd | ✅ | `primitives/Kbd.tsx` — renders from the same string the matcher parses |
+| Toolbar / floating toolbar | ✅ | `components/Toolbar.tsx` — ARIA toolbar, one Tab stop |
+| Menu / ContextMenu | ✅ | `components/Menu.tsx` — roving focus, type-ahead, focus restore |
+| Dialog / Sheet | ✅ | `components/Dialog.tsx` — focus trap, scroll lock, scrim |
+| Checkbox / Switch | ⏳ | not built |
+| Select | ⏳ | not built |
+| Sidebar (collapsible, resizable) | ⏳ | not built |
+| Inspector panel | ⏳ | not built |
+| File browser | ⏳ | not built |
+| Color picker | ⏳ | not built |
+| Font picker | ⏳ | not built |
+| MenuBar | ⏳ | not built |
+| Ribbon | ⏳ | planned as an opt-in density mode of Toolbar |
 
 ## Phase 5 — Workspace
 
+Replaces the Start Center. **Nothing built yet** — see
+`docs/architecture/component-ownership.md` for what it replaces upstream.
+
 | Item | Status |
 |------|--------|
-| Recent / Favorites / Shared / Templates | ✅ |
-| Quick Actions | ✅ |
-| AI panel (UI shell, no model wired) | ✅ |
-| Search Everywhere | ✅ (shared with Command Palette) |
+| Recent / Favorites / Shared / Templates | ⏳ |
+| Quick Actions | ⏳ |
+| AI panel (UI shell, no model wired) | ⏳ |
+| Search Everywhere | ⏳ (the `fuzzy` ranker and CommandPalette exist and will back it) |
 
 ## Phase 6 — Writer Redesign
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Floating toolbar, collapsible sidebar, focus mode | ✅ prototype | `ui/playground` Writer scene |
-| Live outline / document map | ✅ prototype | |
-| Command palette | ✅ | `@nova/components` |
+| Floating toolbar | 🚧 | `Toolbar floating` variant exists; no Writer scene to host it |
+| Collapsible sidebar, focus mode | ⏳ | needs Sidebar (Phase 4) |
+| Live outline / document map | ⏳ | |
+| Command palette | ✅ | `components/CommandPalette.tsx` |
 | Native binding | 🔒 | Integration track |
 
 ## Phase 7 — Calc Redesign
 
 | Item | Status |
 |------|--------|
-| Formula bar, sticky headers, quick formatting panel prototypes | ✅ prototype |
+| Formula bar, sticky headers, quick formatting panel | ⏳ |
 | Grid rendering / smooth scrolling | 🔒 native |
 
 ## Phase 8 — Impress Redesign
 
 | Item | Status |
 |------|--------|
-| Slide navigator, animation timeline, inspector, template gallery prototypes | ✅ prototype |
-| Presenter mode redesign | ✅ prototype |
+| Slide navigator, animation timeline, inspector, template gallery | ⏳ |
+| Presenter mode redesign | ⏳ |
 
 ## Phase 9 — Component Library
 
-| Item | Status |
-|------|--------|
-| `ui/components`, `ui/icons`, `ui/motion` structure | ✅ |
-| Per-component docs + a11y notes + tests | ✅ |
+| Item | Status | Notes |
+|------|--------|-------|
+| `ui/tokens`, `ui/motion`, `ui/icons`, `ui/components` structure | ✅ | four published workspaces |
+| Tests | ✅ | 238 across the tree (tokens 123, motion 31, icons 36, components 48) |
+| Per-component docs + a11y notes | 🚧 | `ui/tokens`, `ui/motion`, `ui/icons` have READMEs; `ui/components` has file-header docs but no per-component README |
+| `ui/playground` component explorer | ⏳ | package.json only — no source |
 
 ## Phase 10 — Motion System
 
-| Item | Status |
-|------|--------|
-| Spring / fade / scale / slide primitives | ✅ |
-| Hover states, reduced-motion support | ✅ |
+| Item | Status | Notes |
+|------|--------|-------|
+| Spring solver, presets, React hooks | ✅ | `@nova/motion`, 31 tests |
+| Fade / scale / slide, hover states | ✅ | `distances`, `scales`, `transitions` presets |
+| Reduced-motion support | ✅ | drops transforms, keeps shortened opacity |
 
 ## Phase 11 — Modern UX
 
-| Item | Status |
-|------|--------|
-| Command Palette (Cmd/Ctrl+K) | ✅ |
-| Global Search / Quick Open | ✅ |
-| Recent Actions | ✅ |
-| Multi-window / workspace tabs | ✅ prototype |
+| Item | Status | Notes |
+|------|--------|-------|
+| Command Palette (Cmd/Ctrl+K) | ✅ | `useCommandPalette` binds the global chord |
+| Global Search / Quick Open | 🚧 | ranker (`fuzzy.ts`) done; no document/file index behind it |
+| Recent Actions | ⏳ | |
+| Multi-window / workspace tabs | ⏳ | |
 
 ## Phase 12 — Settings
 
 | Item | Status |
 |------|--------|
-| Searchable settings, categories, live preview, import/export | ✅ |
+| Searchable settings, categories, live preview, import/export | ⏳ not built |
 
 ## Phase 13 — Performance
 
