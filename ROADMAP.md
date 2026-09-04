@@ -14,8 +14,8 @@ Two tracks run in parallel:
 > **Button/IconButton, Input/Field/SearchInput, Kbd, Toolbar, Menu, Dialog,
 > CommandPalette** plus the `foundations/` hooks. Sidebar, Inspector, File
 > browser, Color picker, Font picker, Select, Toggle, Settings, the Workspace,
-> and the Writer/Calc/Impress scenes are **not built** — `ui/playground` is an
-> empty package. Rows are being corrected by their owning session; see
+> and the Writer/Calc/Impress scenes are **not built**. `ui/playground` now
+> exists (533d5c4). Rows are being corrected by their owning session; see
 > [COORDINATION.md](COORDINATION.md).
 
 ---
@@ -116,7 +116,7 @@ Replaces the Start Center. **Nothing built yet** — see
 | `ui/tokens`, `ui/motion`, `ui/icons`, `ui/components` structure | ✅ | four published workspaces |
 | Tests | ✅ | 238 across the tree (tokens 123, motion 31, icons 36, components 48) |
 | Per-component docs + a11y notes | 🚧 | `ui/tokens`, `ui/motion`, `ui/icons` have READMEs; `ui/components` has file-header docs but no per-component README |
-| `ui/playground` component explorer | ⏳ | package.json only — no source |
+| `ui/playground` component explorer | ✅ | Seven scenes (Overview, Color, Typography, Space & materials, Motion, Components, Icons); renders the real packages aliased to source — 533d5c4 |
 
 ## Phase 10 — Motion System
 
