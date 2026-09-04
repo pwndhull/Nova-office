@@ -1,7 +1,7 @@
 {
   "name": "@nova/tokens",
   "version": "0.1.0",
-  "description": "Nova Office design tokens — colour, type, space, radius, elevation and motion, in light, dark and high-contrast modes.",
+  "description": "Nova Office design tokens \u2014 colour, type, space, radius, elevation and motion, in light, dark and high-contrast modes.",
   "license": "MPL-2.0",
   "type": "module",
   "main": "./dist/tokens.ts",
@@ -12,10 +12,14 @@
     "./scss": "./dist/nova-tokens.scss",
     "./json": "./dist/tokens.json"
   },
-  "files": ["dist", "src", "build.mjs"],
+  "files": [
+    "dist",
+    "src",
+    "build.mjs"
+  ],
   "scripts": {
     "build": "node build.mjs",
-    "test": "node build.mjs && node --test test/",
+    "test": "node build.mjs && node --test 'test/**/*.test.mjs'",
     "prepublishOnly": "node build.mjs"
   }
 }
