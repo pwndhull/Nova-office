@@ -1,0 +1,295 @@
+/**
+ * Playground chrome only.
+ *
+ * Every value here is a Nova token. The explorer is held to the same rule as
+ * the library it shows — if a colour or spacing step is missing from the token
+ * set, that is a finding, not a licence to hard-code one here.
+ */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--nova-bg-canvas);
+  color: var(--nova-text-primary);
+  font-family: var(--nova-font-family-sans);
+  font-size: var(--nova-font-size-14);
+  line-height: var(--nova-font-leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* --- app shell ------------------------------------------------------------ */
+
+.pg {
+  display: grid;
+  grid-template-columns: 236px 1fr;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+.pg__header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-3);
+  padding: 0 var(--nova-size-4);
+  height: var(--nova-size-14);
+  border-bottom: 1px solid var(--nova-border-subtle);
+  background: var(--nova-bg-material-thin);
+  backdrop-filter: blur(var(--nova-blur-thin));
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.pg__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-2);
+  font-weight: var(--nova-font-weight-semibold);
+  letter-spacing: var(--nova-font-tracking-tight);
+}
+
+.pg__brand-mark {
+  width: var(--nova-size-6);
+  height: var(--nova-size-6);
+  color: var(--nova-text-accent);
+}
+
+.pg__spacer {
+  flex: 1;
+}
+
+.pg__nav {
+  border-right: 1px solid var(--nova-border-subtle);
+  padding: var(--nova-size-3);
+  overflow-y: auto;
+  background: var(--nova-bg-surface);
+}
+
+.pg__main {
+  overflow-y: auto;
+  padding: var(--nova-size-8) var(--nova-size-8) var(--nova-size-24);
+}
+
+.pg__content {
+  max-width: 920px;
+}
+
+/* --- nav ------------------------------------------------------------------ */
+
+.pg-nav__group {
+  font-family: var(--nova-type-caption-font-family);
+  font-size: var(--nova-type-caption-font-size);
+  font-weight: var(--nova-type-caption-font-weight);
+  line-height: var(--nova-type-caption-line-height);
+  letter-spacing: var(--nova-type-caption-letter-spacing);
+  text-transform: uppercase;
+  letter-spacing: var(--nova-font-tracking-wide);
+  color: var(--nova-text-tertiary);
+  padding: var(--nova-size-3) var(--nova-size-2) var(--nova-size-1);
+}
+
+.pg-nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-2);
+  width: 100%;
+  padding: var(--nova-size-1-5) var(--nova-size-2);
+  border: 0;
+  border-radius: var(--nova-radius-sm);
+  background: transparent;
+  color: var(--nova-text-secondary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background var(--nova-motion-transition-hover);
+}
+
+.pg-nav__item:hover {
+  background: var(--nova-bg-hover);
+  color: var(--nova-text-primary);
+}
+
+.pg-nav__item[aria-current='page'] {
+  background: var(--nova-bg-selected);
+  color: var(--nova-text-accent);
+  font-weight: var(--nova-font-weight-medium);
+}
+
+/* --- sections ------------------------------------------------------------- */
+
+.pg-h1 {
+  font-family: var(--nova-type-title-1-font-family);
+  font-size: var(--nova-type-title-1-font-size);
+  font-weight: var(--nova-type-title-1-font-weight);
+  line-height: var(--nova-type-title-1-line-height);
+  letter-spacing: var(--nova-type-title-1-letter-spacing);
+  margin: 0 0 var(--nova-size-2);
+}
+
+.pg-lede {
+  font-family: var(--nova-type-callout-font-family);
+  font-size: var(--nova-type-callout-font-size);
+  font-weight: var(--nova-type-callout-font-weight);
+  line-height: var(--nova-type-callout-line-height);
+  letter-spacing: var(--nova-type-callout-letter-spacing);
+  color: var(--nova-text-secondary);
+  margin: 0 0 var(--nova-size-8);
+  max-width: 62ch;
+}
+
+.pg-section {
+  margin-bottom: var(--nova-size-12);
+}
+
+.pg-h2 {
+  font-family: var(--nova-type-title-3-font-family);
+  font-size: var(--nova-type-title-3-font-size);
+  font-weight: var(--nova-type-title-3-font-weight);
+  line-height: var(--nova-type-title-3-line-height);
+  letter-spacing: var(--nova-type-title-3-letter-spacing);
+  margin: 0 0 var(--nova-size-1);
+}
+
+.pg-note {
+  font-family: var(--nova-type-caption-font-family);
+  font-size: var(--nova-type-caption-font-size);
+  font-weight: var(--nova-type-caption-font-weight);
+  line-height: var(--nova-type-caption-line-height);
+  letter-spacing: var(--nova-type-caption-letter-spacing);
+  color: var(--nova-text-tertiary);
+  margin: 0 0 var(--nova-size-4);
+  max-width: 68ch;
+}
+
+.pg-demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nova-size-3);
+  padding: var(--nova-size-5);
+  border: 1px solid var(--nova-border-default);
+  border-radius: var(--nova-radius-lg);
+  background: var(--nova-bg-surface);
+}
+
+.pg-demo--stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pg-grid {
+  display: grid;
+  gap: var(--nova-size-2);
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+/* --- token swatches ------------------------------------------------------- */
+
+.pg-swatch {
+  border: 1px solid var(--nova-border-subtle);
+  border-radius: var(--nova-radius-md);
+  overflow: hidden;
+  background: var(--nova-bg-surface);
+}
+
+.pg-swatch__chip {
+  height: var(--nova-size-12);
+  border-bottom: 1px solid var(--nova-border-subtle);
+}
+
+.pg-swatch__meta {
+  padding: var(--nova-size-2);
+}
+
+.pg-swatch__name {
+  font-family: var(--nova-type-caption-font-family);
+  font-size: var(--nova-type-caption-font-size);
+  font-weight: var(--nova-type-caption-font-weight);
+  line-height: var(--nova-type-caption-line-height);
+  letter-spacing: var(--nova-type-caption-letter-spacing);
+  font-weight: var(--nova-font-weight-medium);
+  display: block;
+}
+
+.pg-swatch__value {
+  font-family: var(--nova-font-family-mono);
+  font-size: var(--nova-font-size-11);
+  color: var(--nova-text-tertiary);
+}
+
+/* --- icon grid ------------------------------------------------------------ */
+
+.pg-icons {
+  display: grid;
+  gap: var(--nova-size-1);
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+}
+
+.pg-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--nova-size-1-5);
+  padding: var(--nova-size-3) var(--nova-size-1);
+  border-radius: var(--nova-radius-md);
+  color: var(--nova-text-secondary);
+}
+
+.pg-icon:hover {
+  background: var(--nova-bg-hover);
+  color: var(--nova-text-primary);
+}
+
+.pg-icon__name {
+  font-family: var(--nova-font-family-mono);
+  font-size: var(--nova-font-size-11);
+  color: var(--nova-text-tertiary);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* --- misc ----------------------------------------------------------------- */
+
+.pg-row {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-3);
+  flex-wrap: wrap;
+}
+
+.pg-box {
+  display: grid;
+  place-items: center;
+  min-width: var(--nova-size-16);
+  height: var(--nova-size-16);
+  background: var(--nova-bg-surface-raised);
+  border: 1px solid var(--nova-border-default);
+  font-family: var(--nova-font-family-mono);
+  font-size: var(--nova-font-size-11);
+  color: var(--nova-text-tertiary);
+}
+
+.pg-type-row {
+  padding: var(--nova-size-3) 0;
+  border-bottom: 1px solid var(--nova-border-subtle);
+  display: flex;
+  align-items: baseline;
+  gap: var(--nova-size-4);
+}
+
+.pg-type-row__label {
+  flex: 0 0 var(--nova-size-24);
+  font-family: var(--nova-font-family-mono);
+  font-size: var(--nova-font-size-11);
+  color: var(--nova-text-tertiary);
+}

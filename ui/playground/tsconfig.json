@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": [
+      "vite/client",
+      "node"
+    ],
+    "paths": {
+      "@nova/components": [
+        "../components/src"
+      ],
+      "@nova/icons": [
+        "../icons/src"
+      ],
+      "@nova/motion": [
+        "../motion/src"
+      ],
+      "@nova/tokens": [
+        "../tokens/dist/tokens.ts"
+      ]
+    }
+  },
+  "include": [
+    "src",
+    "vite.config.ts"
+  ]
+}
