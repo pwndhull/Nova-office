@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: false,
+    setupFiles: ['./test-setup.ts'],
     include: ['integration/**/*.test.{ts,tsx}', 'benchmarks/**/*.test.ts'],
     benchmark: { include: ['benchmarks/**/*.bench.ts'] },
   },
