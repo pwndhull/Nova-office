@@ -1,0 +1,785 @@
+/**
+ * Nova Office component styles.
+ *
+ * Every value here resolves to a token from @nova/tokens. There are no literal
+ * colours, no literal radii, and no literal durations below this comment — a
+ * hard-coded value is a theme decision baked into a component, and it will be
+ * wrong in dark or high-contrast mode.
+ *
+ * Import order matters: @nova/tokens/css must be loaded first.
+ */
+
+/* ============================================================
+   Focus
+   ============================================================ */
+
+/**
+ * One focus treatment for the whole product.
+ *
+ * `:focus-visible` rather than `:focus`, so a mouse click does not leave a ring
+ * behind but keyboard navigation always shows one. The ring is drawn with
+ * `outline` (not box-shadow) so it follows the element's border radius and
+ * survives Windows forced-colors mode, where box-shadow is discarded and a
+ * box-shadow ring would leave a keyboard user with no focus indicator at all.
+ */
+.nova-focusable:focus-visible,
+.nova-button:focus-visible,
+.nova-input:focus-visible,
+.nova-menu-item:focus-visible,
+.nova-toolbar-item:focus-visible {
+  outline: 2px solid var(--nova-border-focus);
+  outline-offset: 2px;
+}
+
+.nova-focusable:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================================
+   Button
+   ============================================================ */
+
+.nova-button {
+  --button-height: var(--nova-size-8);
+  --button-padding: var(--nova-size-3);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nova-size-2);
+
+  height: var(--button-height);
+  padding-inline: var(--button-padding);
+  border: 1px solid transparent;
+  border-radius: var(--nova-radius-md);
+
+  font-family: var(--nova-type-body-strong-font-family);
+  font-size: var(--nova-type-body-strong-font-size);
+  font-weight: var(--nova-type-body-strong-font-weight);
+  line-height: 1;
+  white-space: nowrap;
+
+  cursor: pointer;
+  user-select: none;
+  transition: var(--nova-motion-transition-hover);
+  transition-property: background-color, border-color, color, box-shadow, transform;
+}
+
+.nova-button:disabled,
+.nova-button[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Press feedback is a transform, so it is dropped under reduced motion. */
+.nova-button:not(:disabled):active {
+  transform: scale(var(--nova-motion-scale-press));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nova-button:not(:disabled):active {
+    transform: none;
+  }
+}
+
+/* -- variants -- */
+
+.nova-button--primary {
+  background: var(--nova-accent-default);
+  color: var(--nova-text-on-accent);
+  box-shadow: var(--nova-elevation-resting);
+}
+.nova-button--primary:not(:disabled):hover {
+  background: var(--nova-accent-hover);
+}
+.nova-button--primary:not(:disabled):active {
+  background: var(--nova-accent-active);
+}
+
+.nova-button--secondary {
+  background: var(--nova-bg-surface);
+  color: var(--nova-text-primary);
+  /* border-control, not border-default: this outline is the only thing that
+     identifies the control, so it is subject to WCAG SC 1.4.11. */
+  border-color: var(--nova-border-control);
+}
+.nova-button--secondary:not(:disabled):hover {
+  background: var(--nova-bg-hover);
+  border-color: var(--nova-border-strong);
+}
+.nova-button--secondary:not(:disabled):active {
+  background: var(--nova-bg-active);
+}
+
+.nova-button--ghost {
+  background: transparent;
+  color: var(--nova-text-primary);
+}
+.nova-button--ghost:not(:disabled):hover {
+  background: var(--nova-bg-hover);
+}
+.nova-button--ghost:not(:disabled):active {
+  background: var(--nova-bg-active);
+}
+
+.nova-button--danger {
+  background: var(--nova-status-danger-fg);
+  color: var(--nova-text-inverse);
+}
+
+/* -- sizes -- */
+
+.nova-button--sm {
+  --button-height: var(--nova-size-7);
+  --button-padding: var(--nova-size-2-5);
+  font-size: var(--nova-type-callout-font-size);
+}
+
+.nova-button--lg {
+  --button-height: var(--nova-size-10);
+  --button-padding: var(--nova-size-4);
+  font-size: var(--nova-type-headline-font-size);
+}
+
+/**
+ * Icon-only buttons are square and drop the inline padding.
+ *
+ * The minimum is 32px rather than the 24px the icon needs: WCAG 2.2 SC 2.5.8
+ * requires a 24×24 target, and 32 leaves room for the gap between adjacent
+ * toolbar buttons to also clear it.
+ */
+.nova-button--icon {
+  --button-padding: 0;
+  width: var(--button-height);
+  aspect-ratio: 1;
+}
+
+.nova-button--full {
+  width: 100%;
+}
+
+/* ============================================================
+   Input
+   ============================================================ */
+
+.nova-input {
+  display: block;
+  width: 100%;
+  height: var(--nova-size-8);
+  padding-inline: var(--nova-size-3);
+
+  background: var(--nova-bg-surface-sunken);
+  color: var(--nova-text-primary);
+  border: 1px solid var(--nova-border-control);
+  border-radius: var(--nova-radius-md);
+
+  font-family: var(--nova-type-body-font-family);
+  font-size: var(--nova-type-body-font-size);
+
+  transition: var(--nova-motion-transition-hover);
+  transition-property: border-color, background-color;
+}
+
+.nova-input::placeholder {
+  color: var(--nova-text-tertiary);
+}
+
+.nova-input:hover:not(:disabled) {
+  border-color: var(--nova-border-strong);
+}
+
+.nova-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nova-input[aria-invalid='true'] {
+  border-color: var(--nova-status-danger-fg);
+}
+
+.nova-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nova-size-1-5);
+}
+
+.nova-field__label {
+  font-size: var(--nova-type-callout-font-size);
+  font-weight: var(--nova-font-weight-medium);
+  color: var(--nova-text-secondary);
+}
+
+.nova-field__hint {
+  font-size: var(--nova-type-caption-font-size);
+  color: var(--nova-text-tertiary);
+}
+
+.nova-field__error {
+  font-size: var(--nova-type-caption-font-size);
+  color: var(--nova-status-danger-fg);
+}
+
+/* ============================================================
+   Kbd
+   ============================================================ */
+
+.nova-kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nova-size-0-5);
+}
+
+.nova-kbd__key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--nova-size-5);
+  height: var(--nova-size-5);
+  padding-inline: var(--nova-size-1-5);
+
+  background: var(--nova-bg-surface-sunken);
+  color: var(--nova-text-tertiary);
+  border: 1px solid var(--nova-border-subtle);
+  border-radius: var(--nova-radius-xs);
+
+  font-family: var(--nova-type-body-font-family);
+  font-size: var(--nova-type-caption-font-size);
+  line-height: 1;
+}
+
+/* ============================================================
+   Surfaces — the translucent materials
+   ============================================================ */
+
+/**
+ * `backdrop-filter` is the expensive part of this design language. It is applied
+ * only to chrome that sits over scrolling content, and only where the surface
+ * is large enough for the effect to read. `@supports` keeps the fallback honest:
+ * without blur the material must be opaque, or text lands on whatever is behind.
+ */
+.nova-material {
+  background: var(--nova-bg-material-regular);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .nova-material {
+    -webkit-backdrop-filter: blur(var(--nova-blur-regular)) saturate(180%);
+    backdrop-filter: blur(var(--nova-blur-regular)) saturate(180%);
+  }
+  .nova-material--thin {
+    background: var(--nova-bg-material-thin);
+    -webkit-backdrop-filter: blur(var(--nova-blur-thin)) saturate(180%);
+    backdrop-filter: blur(var(--nova-blur-thin)) saturate(180%);
+  }
+  .nova-material--thick {
+    background: var(--nova-bg-material-thick);
+    -webkit-backdrop-filter: blur(var(--nova-blur-thick)) saturate(160%);
+    backdrop-filter: blur(var(--nova-blur-thick)) saturate(160%);
+  }
+}
+
+/* High-contrast modes resolve the material tokens to opaque colours, but the
+   blur must also go — it reduces the contrast of whatever shows through. */
+@media (prefers-contrast: more) {
+  .nova-material,
+  .nova-material--thin,
+  .nova-material--thick {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.nova-surface {
+  background: var(--nova-bg-surface);
+  border: 1px solid var(--nova-border-default);
+  border-radius: var(--nova-radius-lg);
+}
+
+/* ============================================================
+   Toolbar
+   ============================================================ */
+
+.nova-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-1);
+  padding: var(--nova-size-1-5);
+  border-radius: var(--nova-radius-lg);
+}
+
+.nova-toolbar--floating {
+  gap: var(--nova-size-0-5);
+  border: 1px solid var(--nova-border-default);
+  box-shadow: var(--nova-elevation-floating);
+}
+
+.nova-toolbar--vertical {
+  flex-direction: column;
+}
+
+.nova-toolbar__separator {
+  flex: none;
+  align-self: stretch;
+  width: 1px;
+  margin-inline: var(--nova-size-1);
+  background: var(--nova-border-subtle);
+}
+
+.nova-toolbar--vertical .nova-toolbar__separator {
+  width: auto;
+  height: 1px;
+  margin-block: var(--nova-size-1);
+  margin-inline: 0;
+}
+
+.nova-toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-0-5);
+}
+
+/* A toggled toolbar button reads as pressed, not merely hovered. */
+.nova-toolbar-item[aria-pressed='true'],
+.nova-toolbar-item[data-selected='true'] {
+  background: var(--nova-accent-subtle);
+  color: var(--nova-text-accent);
+}
+
+/* ============================================================
+   Menu
+   ============================================================ */
+
+.nova-menu {
+  min-width: 220px;
+  max-height: min(70vh, 520px);
+  padding: var(--nova-size-1-5);
+  overflow-y: auto;
+
+  border: 1px solid var(--nova-border-default);
+  border-radius: var(--nova-radius-lg);
+  box-shadow: var(--nova-elevation-floating);
+}
+
+.nova-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-2-5);
+  width: 100%;
+  padding: var(--nova-size-1-5) var(--nova-size-2-5);
+
+  background: none;
+  border: 0;
+  border-radius: var(--nova-radius-sm);
+  color: var(--nova-text-primary);
+
+  font-family: var(--nova-type-body-font-family);
+  font-size: var(--nova-type-body-font-size);
+  text-align: start;
+  cursor: pointer;
+}
+
+/**
+ * Hover and keyboard-active share one treatment.
+ *
+ * In a roving-tabindex menu the active item has real DOM focus, so styling
+ * `:focus` and `:hover` differently would show two highlighted rows at once
+ * whenever the pointer rests somewhere other than the keyboard position.
+ */
+.nova-menu-item:hover:not([aria-disabled='true']),
+.nova-menu-item[data-active]:not([aria-disabled='true']) {
+  background: var(--nova-bg-hover);
+}
+
+.nova-menu-item[aria-disabled='true'] {
+  color: var(--nova-text-disabled);
+  cursor: not-allowed;
+}
+
+.nova-menu-item__label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nova-menu-item__shortcut {
+  flex: none;
+  color: var(--nova-text-tertiary);
+}
+
+.nova-menu__separator {
+  height: 1px;
+  margin: var(--nova-size-1-5) var(--nova-size-1);
+  background: var(--nova-border-subtle);
+}
+
+.nova-menu__label {
+  padding: var(--nova-size-2) var(--nova-size-2-5) var(--nova-size-1);
+  color: var(--nova-text-tertiary);
+  font-size: var(--nova-type-overline-font-size);
+  font-weight: var(--nova-type-overline-font-weight);
+  letter-spacing: var(--nova-type-overline-letter-spacing);
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   Dialog
+   ============================================================ */
+
+.nova-dialog__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--nova-zindex-overlay);
+  display: grid;
+  place-items: center;
+  padding: var(--nova-size-6);
+  background: var(--nova-bg-scrim);
+}
+
+.nova-dialog {
+  position: relative;
+  z-index: var(--nova-zindex-dialog);
+  width: min(100%, 480px);
+  max-height: calc(100vh - var(--nova-size-16));
+  display: flex;
+  flex-direction: column;
+
+  background: var(--nova-bg-surface-raised);
+  border: 1px solid var(--nova-border-default);
+  border-radius: var(--nova-radius-xl);
+  box-shadow: var(--nova-elevation-modal);
+}
+
+.nova-dialog--sm { width: min(100%, 380px); }
+.nova-dialog--lg { width: min(100%, 680px); }
+
+.nova-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nova-size-3);
+  padding: var(--nova-size-5) var(--nova-size-5) var(--nova-size-3);
+}
+
+.nova-dialog__title {
+  flex: 1;
+  margin: 0;
+  font-size: var(--nova-type-headline-font-size);
+  font-weight: var(--nova-type-headline-font-weight);
+  color: var(--nova-text-primary);
+}
+
+.nova-dialog__description {
+  margin: var(--nova-size-1) 0 0;
+  font-size: var(--nova-type-callout-font-size);
+  color: var(--nova-text-secondary);
+}
+
+.nova-dialog__body {
+  flex: 1;
+  padding: 0 var(--nova-size-5);
+  overflow-y: auto;
+}
+
+.nova-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--nova-size-2);
+  padding: var(--nova-size-5);
+}
+
+/* Enter/exit, driven by the data-state that usePresence writes. */
+.nova-dialog__scrim[data-state='entering'],
+.nova-dialog__scrim[data-state='exiting'] {
+  opacity: 0;
+}
+.nova-dialog__scrim {
+  opacity: 1;
+  transition: opacity var(--nova-motion-transition-overlay);
+}
+
+.nova-dialog[data-state='entering'],
+.nova-dialog[data-state='exiting'] {
+  opacity: 0;
+  transform: scale(var(--nova-motion-scale-enter-from)) translateY(var(--nova-motion-distance-slide-sm));
+}
+.nova-dialog {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--nova-motion-transition-overlay),
+    transform var(--nova-motion-transition-overlay);
+}
+
+/* ============================================================
+   Command palette
+   ============================================================ */
+
+.nova-palette__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--nova-zindex-palette);
+  display: flex;
+  justify-content: center;
+  /* Sits high in the viewport rather than centred: the results list grows
+     downward, and a centred palette would shift as the user types. */
+  padding-top: 12vh;
+  padding-inline: var(--nova-size-6);
+  background: var(--nova-bg-scrim);
+}
+
+.nova-palette {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 640px);
+  max-height: 60vh;
+  overflow: hidden;
+
+  border: 1px solid var(--nova-border-default);
+  border-radius: var(--nova-radius-xl);
+  box-shadow: var(--nova-elevation-modal);
+}
+
+.nova-palette__search {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-3);
+  padding: var(--nova-size-4);
+  border-bottom: 1px solid var(--nova-border-subtle);
+  color: var(--nova-text-tertiary);
+}
+
+.nova-palette__input {
+  flex: 1;
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--nova-text-primary);
+  font-family: var(--nova-type-body-font-family);
+  font-size: var(--nova-type-title-3-font-size);
+}
+
+.nova-palette__input::placeholder {
+  color: var(--nova-text-tertiary);
+}
+
+.nova-palette__results {
+  flex: 1;
+  padding: var(--nova-size-2);
+  overflow-y: auto;
+  /* The active row is moved by keyboard, so scrolling must follow smoothly —
+     but only when the user has not asked for reduced motion. */
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nova-palette__results {
+    scroll-behavior: auto;
+  }
+}
+
+.nova-palette__empty {
+  padding: var(--nova-size-8) var(--nova-size-4);
+  text-align: center;
+  color: var(--nova-text-tertiary);
+  font-size: var(--nova-type-callout-font-size);
+}
+
+.nova-palette__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-4);
+  padding: var(--nova-size-2-5) var(--nova-size-4);
+  border-top: 1px solid var(--nova-border-subtle);
+  color: var(--nova-text-tertiary);
+  font-size: var(--nova-type-caption-font-size);
+}
+
+.nova-palette__hint {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-1-5);
+}
+
+/* The matched substring in a result. Weight, not colour — colour alone would
+   fail SC 1.4.1 (use of colour) for anyone who cannot distinguish it. */
+.nova-palette__match {
+  font-weight: var(--nova-font-weight-semibold);
+  color: var(--nova-text-accent);
+}
+
+.nova-palette[data-state='entering'],
+.nova-palette[data-state='exiting'] {
+  opacity: 0;
+  transform: scale(var(--nova-motion-scale-enter-from));
+}
+.nova-palette {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--nova-motion-transition-overlay),
+    transform var(--nova-motion-transition-overlay);
+}
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
+
+.nova-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-inline-end: 1px solid var(--nova-border-subtle);
+  overflow: hidden;
+  /* Width is animated by the component via a spring, so no transition here —
+     two systems animating the same property fight each other. */
+}
+
+.nova-sidebar__header {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-2);
+  padding: var(--nova-size-3);
+  min-height: var(--nova-size-12);
+}
+
+.nova-sidebar__content {
+  flex: 1;
+  padding: var(--nova-size-2);
+  overflow-y: auto;
+}
+
+.nova-sidebar__group-label {
+  padding: var(--nova-size-3) var(--nova-size-2-5) var(--nova-size-1);
+  color: var(--nova-text-tertiary);
+  font-size: var(--nova-type-overline-font-size);
+  font-weight: var(--nova-type-overline-font-weight);
+  letter-spacing: var(--nova-type-overline-letter-spacing);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nova-sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-2-5);
+  width: 100%;
+  padding: var(--nova-size-2) var(--nova-size-2-5);
+
+  background: none;
+  border: 0;
+  border-radius: var(--nova-radius-sm);
+  color: var(--nova-text-secondary);
+
+  font-family: var(--nova-type-body-font-family);
+  font-size: var(--nova-type-body-font-size);
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--nova-motion-transition-hover);
+  transition-property: background-color, color;
+}
+
+.nova-sidebar__item:hover {
+  background: var(--nova-bg-hover);
+  color: var(--nova-text-primary);
+}
+
+.nova-sidebar__item[aria-current='page'],
+.nova-sidebar__item[data-selected='true'] {
+  background: var(--nova-bg-selected);
+  color: var(--nova-text-accent);
+  font-weight: var(--nova-font-weight-medium);
+}
+
+.nova-sidebar__item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Collapsed rail: labels are hidden visually but stay in the a11y tree via the
+   button's accessible name, so the rail is still usable with a screen reader. */
+.nova-sidebar--collapsed .nova-sidebar__item-label,
+.nova-sidebar--collapsed .nova-sidebar__group-label {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nova-sidebar__item-label {
+  transition: opacity var(--nova-motion-transition-hover);
+}
+
+/* ============================================================
+   Scrollbars
+   ============================================================ */
+
+/**
+ * Thin, self-colouring scrollbars. Deliberately not hidden: a scrollbar that
+ * only appears on hover hides the fact that content is scrollable, which is an
+ * affordance problem, not a style one.
+ */
+.nova-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--nova-border-strong) transparent;
+}
+
+.nova-scroll::-webkit-scrollbar {
+  width: var(--nova-size-2-5);
+  height: var(--nova-size-2-5);
+}
+
+.nova-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nova-scroll::-webkit-scrollbar-thumb {
+  background: var(--nova-border-strong);
+  border: 3px solid transparent;
+  border-radius: var(--nova-radius-full);
+  background-clip: content-box;
+}
+
+/* ============================================================
+   Windows forced-colors mode
+   ============================================================ */
+
+/**
+ * Forced-colors replaces every colour with a system palette, so backgrounds
+ * that carried meaning (a selected row, a pressed toolbar button) all collapse
+ * to the same thing. Re-express those states with borders, which forced-colors
+ * preserves.
+ */
+@media (forced-colors: active) {
+  .nova-button,
+  .nova-input,
+  .nova-surface,
+  .nova-menu,
+  .nova-dialog,
+  .nova-palette {
+    border: 1px solid CanvasText;
+  }
+
+  .nova-toolbar-item[aria-pressed='true'],
+  .nova-sidebar__item[aria-current='page'],
+  .nova-sidebar__item[data-selected='true'],
+  .nova-menu-item[data-active] {
+    border: 2px solid Highlight;
+    /* forced-colors discards backgrounds, so the state must not depend on one. */
+  }
+
+  .nova-focusable:focus-visible,
+  .nova-button:focus-visible,
+  .nova-input:focus-visible,
+  .nova-menu-item:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 1px;
+  }
+
+  .nova-material,
+  .nova-material--thin,
+  .nova-material--thick {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: Canvas;
+  }
+}
