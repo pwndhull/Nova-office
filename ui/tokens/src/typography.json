@@ -1,0 +1,73 @@
+{
+  "$description": "Composite type styles. A component picks a style by name; it never assembles size + weight + leading itself. Each style emits a CSS custom-property group and a `.nova-type-*` utility class.",
+  "$composite": true,
+
+  "display": {
+    "$description": "Workspace hero, splash screen. One per screen at most.",
+    "fontSize": "{font.size.52}", "lineHeight": "{font.leading.tight}",
+    "fontWeight": "{font.weight.bold}", "letterSpacing": "{font.tracking.tighter}",
+    "fontFamily": "{font.family.sans}"
+  },
+  "title-1": {
+    "fontSize": "{font.size.34}", "lineHeight": "{font.leading.tight}",
+    "fontWeight": "{font.weight.bold}", "letterSpacing": "{font.tracking.tighter}",
+    "fontFamily": "{font.family.sans}"
+  },
+  "title-2": {
+    "fontSize": "{font.size.28}", "lineHeight": "{font.leading.snug}",
+    "fontWeight": "{font.weight.semibold}", "letterSpacing": "{font.tracking.tight}",
+    "fontFamily": "{font.family.sans}"
+  },
+  "title-3": {
+    "$description": "Section headers in the workspace and settings.",
+    "fontSize": "{font.size.20}", "lineHeight": "{font.leading.snug}",
+    "fontWeight": "{font.weight.semibold}", "letterSpacing": "{font.tracking.tight}",
+    "fontFamily": "{font.family.sans}"
+  },
+  "headline": {
+    "$description": "Card titles, dialog titles, list-group headers.",
+    "fontSize": "{font.size.16}", "lineHeight": "{font.leading.snug}",
+    "fontWeight": "{font.weight.semibold}", "letterSpacing": "{font.tracking.normal}",
+    "fontFamily": "{font.family.sans}"
+  },
+  "body": {
+    "$description": "Default UI text.",
+    "fontSize": "{font.size.14}", "lineHeight": "{font.leading.normal}",
+    "fontWeight": "{font.weight.regular}", "letterSpacing": "{font.tracking.normal}",
+    "fontFamily": "{font.family.sans}"
+  },
+  "body-strong": {
+    "fontSize": "{font.size.14}", "lineHeight": "{font.leading.normal}",
+    "fontWeight": "{font.weight.medium}", "letterSpacing": "{font.tracking.normal}",
+    "fontFamily": "{font.family.sans}"
+  },
+  "callout": {
+    "$description": "Secondary UI text: helper copy, menu shortcuts, metadata.",
+    "fontSize": "{font.size.13}", "lineHeight": "{font.leading.normal}",
+    "fontWeight": "{font.weight.regular}", "letterSpacing": "{font.tracking.normal}",
+    "fontFamily": "{font.family.sans}"
+  },
+  "caption": {
+    "fontSize": "{font.size.12}", "lineHeight": "{font.leading.snug}",
+    "fontWeight": "{font.weight.regular}", "letterSpacing": "{font.tracking.wide}",
+    "fontFamily": "{font.family.sans}"
+  },
+  "overline": {
+    "$description": "Uppercase group labels in the sidebar and inspector.",
+    "fontSize": "{font.size.11}", "lineHeight": "{font.leading.snug}",
+    "fontWeight": "{font.weight.semibold}", "letterSpacing": "{font.tracking.wider}",
+    "fontFamily": "{font.family.sans}", "textTransform": "uppercase"
+  },
+  "mono": {
+    "$description": "Formula bar, cell references, diagnostics.",
+    "fontSize": "{font.size.13}", "lineHeight": "{font.leading.normal}",
+    "fontWeight": "{font.weight.regular}", "letterSpacing": "{font.tracking.normal}",
+    "fontFamily": "{font.family.mono}"
+  },
+  "document": {
+    "$description": "Writer's on-canvas reading style. Serif, relaxed leading, measured for a 68-character line.",
+    "fontSize": "{font.size.18}", "lineHeight": "{font.leading.relaxed}",
+    "fontWeight": "{font.weight.regular}", "letterSpacing": "{font.tracking.normal}",
+    "fontFamily": "{font.family.serif}"
+  }
+}

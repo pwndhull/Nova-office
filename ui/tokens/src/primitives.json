@@ -1,0 +1,234 @@
+{
+  "$description": "Primitive tokens. Raw values with no semantic meaning. Never consumed directly by components — semantic tokens reference these.",
+  "color": {
+    "$description": "Perceptually-spaced ramps. Steps are named by lightness intent, not by hue value, so a ramp can be re-tuned without renaming.",
+    "gray": {
+      "0":  { "value": "#ffffff" },
+      "25": { "value": "#fcfcfd" },
+      "50": { "value": "#f8f9fb" },
+      "100": { "value": "#f1f3f7" },
+      "150": { "value": "#e8ebf1" },
+      "200": { "value": "#dde1ea" },
+      "300": { "value": "#c6ccda" },
+      "400": { "value": "#a2abbf" },
+      "500": { "value": "#7d879e" },
+      "600": { "value": "#5c6679" },
+      "700": { "value": "#434b5c" },
+      "800": { "value": "#2c3342" },
+      "850": { "value": "#222834" },
+      "900": { "value": "#181d27" },
+      "950": { "value": "#0f131b" },
+      "1000": { "value": "#000000" }
+    },
+    "indigo": {
+      "50":  { "value": "#eef1ff" },
+      "100": { "value": "#dfe4ff" },
+      "200": { "value": "#c4cbff" },
+      "300": { "value": "#a1a9ff" },
+      "400": { "value": "#8080fb" },
+      "500": { "value": "#635bf0" },
+      "600": { "value": "#5142d8" },
+      "700": { "value": "#4436b3" },
+      "800": { "value": "#392f90" },
+      "900": { "value": "#2f2a72" }
+    },
+    "teal": {
+      "50":  { "value": "#eafaf7" },
+      "100": { "value": "#cbf2ea" },
+      "200": { "value": "#9ae5d7" },
+      "300": { "value": "#5fd1bf" },
+      "400": { "value": "#2fb5a4" },
+      "500": { "value": "#159888" },
+      "600": { "value": "#0d7a6e" },
+      "700": { "value": "#0e6159" },
+      "800": { "value": "#104e48" },
+      "900": { "value": "#11413c" }
+    },
+    "amber": {
+      "50":  { "value": "#fff8eb" },
+      "100": { "value": "#ffecc7" },
+      "200": { "value": "#ffd68a" },
+      "300": { "value": "#ffb84d" },
+      "400": { "value": "#fb9a24" },
+      "500": { "value": "#e5780b" },
+      "600": { "value": "#be5606" },
+      "700": { "value": "#983d09" },
+      "800": { "value": "#7c320e" },
+      "900": { "value": "#682a0f" }
+    },
+    "red": {
+      "50":  { "value": "#fef2f2" },
+      "100": { "value": "#fee2e2" },
+      "200": { "value": "#fecaca" },
+      "300": { "value": "#fca5a5" },
+      "400": { "value": "#f87171" },
+      "500": { "value": "#e5484d" },
+      "600": { "value": "#ca3236" },
+      "700": { "value": "#a72429" },
+      "800": { "value": "#8a2225" },
+      "900": { "value": "#752226" }
+    },
+    "green": {
+      "50":  { "value": "#f0fdf4" },
+      "100": { "value": "#dcfce7" },
+      "200": { "value": "#bbf7d0" },
+      "300": { "value": "#86e0a8" },
+      "400": { "value": "#4cc47e" },
+      "500": { "value": "#2ba55f" },
+      "600": { "value": "#1d854c" },
+      "700": { "value": "#1a6a3f" },
+      "800": { "value": "#195435" },
+      "900": { "value": "#16452e" }
+    },
+    "alpha": {
+      "$description": "Overlay scrims and translucent material tints. Composited over content, so they must be alpha, not solid.",
+      "black-4":  { "value": "rgba(15, 19, 27, 0.04)" },
+      "black-8":  { "value": "rgba(15, 19, 27, 0.08)" },
+      "black-12": { "value": "rgba(15, 19, 27, 0.12)" },
+      "black-24": { "value": "rgba(15, 19, 27, 0.24)" },
+      "black-48": { "value": "rgba(15, 19, 27, 0.48)" },
+      "black-64": { "value": "rgba(15, 19, 27, 0.64)" },
+      "white-4":  { "value": "rgba(255, 255, 255, 0.04)" },
+      "white-8":  { "value": "rgba(255, 255, 255, 0.08)" },
+      "white-12": { "value": "rgba(255, 255, 255, 0.12)" },
+      "white-24": { "value": "rgba(255, 255, 255, 0.24)" },
+      "white-64": { "value": "rgba(255, 255, 255, 0.64)" },
+      "white-80": { "value": "rgba(255, 255, 255, 0.80)" }
+    }
+  },
+
+  "size": {
+    "$description": "4px base grid. Generous spacing is a Nova principle — prefer the next step up over a half step.",
+    "0":  { "value": "0px" },
+    "px": { "value": "1px" },
+    "0.5": { "value": "2px" },
+    "1":  { "value": "4px" },
+    "1.5": { "value": "6px" },
+    "2":  { "value": "8px" },
+    "2.5": { "value": "10px" },
+    "3":  { "value": "12px" },
+    "4":  { "value": "16px" },
+    "5":  { "value": "20px" },
+    "6":  { "value": "24px" },
+    "7":  { "value": "28px" },
+    "8":  { "value": "32px" },
+    "10": { "value": "40px" },
+    "12": { "value": "48px" },
+    "14": { "value": "56px" },
+    "16": { "value": "64px" },
+    "20": { "value": "80px" },
+    "24": { "value": "96px" },
+    "32": { "value": "128px" }
+  },
+
+  "radius": {
+    "none": { "value": "0px" },
+    "xs":   { "value": "4px" },
+    "sm":   { "value": "6px" },
+    "md":   { "value": "8px" },
+    "lg":   { "value": "12px" },
+    "xl":   { "value": "16px" },
+    "2xl":  { "value": "20px" },
+    "3xl":  { "value": "28px" },
+    "full": { "value": "9999px" }
+  },
+
+  "font": {
+    "family": {
+      "sans": {
+        "$description": "System-first stack. Nova ships no webfont; the platform UI face is the most legible and the fastest to first paint.",
+        "value": "-apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', Inter, 'SF Pro Text', Roboto, 'Helvetica Neue', Arial, sans-serif"
+      },
+      "serif": { "value": "'New York', 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Times New Roman', serif" },
+      "mono":  { "value": "'SF Mono', 'Cascadia Code', 'JetBrains Mono', Menlo, Consolas, 'Liberation Mono', monospace" }
+    },
+    "weight": {
+      "regular":  { "value": "400" },
+      "medium":   { "value": "500" },
+      "semibold": { "value": "600" },
+      "bold":     { "value": "700" }
+    },
+    "size": {
+      "$description": "Modular scale, 1.125 ratio at the small end, loosening toward display sizes.",
+      "10": { "value": "10px" },
+      "11": { "value": "11px" },
+      "12": { "value": "12px" },
+      "13": { "value": "13px" },
+      "14": { "value": "14px" },
+      "15": { "value": "15px" },
+      "16": { "value": "16px" },
+      "18": { "value": "18px" },
+      "20": { "value": "20px" },
+      "24": { "value": "24px" },
+      "28": { "value": "28px" },
+      "34": { "value": "34px" },
+      "40": { "value": "40px" },
+      "52": { "value": "52px" }
+    },
+    "leading": {
+      "none":    { "value": "1" },
+      "tight":   { "value": "1.2" },
+      "snug":    { "value": "1.35" },
+      "normal":  { "value": "1.5" },
+      "relaxed": { "value": "1.65" },
+      "loose":   { "value": "1.8" }
+    },
+    "tracking": {
+      "$description": "Optical tracking. Large text tightens, small caps text opens up — matching Apple's optical sizing behaviour.",
+      "tighter": { "value": "-0.022em" },
+      "tight":   { "value": "-0.014em" },
+      "normal":  { "value": "0em" },
+      "wide":    { "value": "0.01em" },
+      "wider":   { "value": "0.04em" }
+    }
+  },
+
+  "shadow": {
+    "$description": "Two-layer shadows: a tight contact shadow plus a diffuse ambient shadow. Single-layer shadows read as cheap at these radii.",
+    "xs": { "value": "0 1px 2px rgba(15, 19, 27, 0.06)" },
+    "sm": { "value": "0 1px 2px rgba(15, 19, 27, 0.06), 0 2px 6px rgba(15, 19, 27, 0.05)" },
+    "md": { "value": "0 2px 4px rgba(15, 19, 27, 0.06), 0 6px 16px rgba(15, 19, 27, 0.08)" },
+    "lg": { "value": "0 4px 8px rgba(15, 19, 27, 0.07), 0 12px 32px rgba(15, 19, 27, 0.10)" },
+    "xl": { "value": "0 8px 16px rgba(15, 19, 27, 0.08), 0 24px 56px rgba(15, 19, 27, 0.14)" },
+    "dark-sm": { "value": "0 1px 2px rgba(0, 0, 0, 0.32), 0 2px 6px rgba(0, 0, 0, 0.28)" },
+    "dark-md": { "value": "0 2px 4px rgba(0, 0, 0, 0.36), 0 6px 16px rgba(0, 0, 0, 0.34)" },
+    "dark-lg": { "value": "0 4px 8px rgba(0, 0, 0, 0.40), 0 12px 32px rgba(0, 0, 0, 0.40)" },
+    "dark-xl": { "value": "0 8px 16px rgba(0, 0, 0, 0.44), 0 24px 56px rgba(0, 0, 0, 0.48)" }
+  },
+
+  "blur": {
+    "$description": "Backdrop blur radii for translucent materials.",
+    "thin":  { "value": "12px" },
+    "regular": { "value": "24px" },
+    "thick": { "value": "40px" }
+  },
+
+  "duration": {
+    "instant": { "value": "0ms" },
+    "fast":    { "value": "120ms" },
+    "base":    { "value": "180ms" },
+    "slow":    { "value": "260ms" },
+    "slower":  { "value": "400ms" }
+  },
+
+  "easing": {
+    "$description": "Nova never uses linear or ease-in-out for entrances. `standard` is the workhorse; `emphasized` carries a slight overshoot for elements that gain focus.",
+    "standard":   { "value": "cubic-bezier(0.2, 0, 0, 1)" },
+    "decelerate": { "value": "cubic-bezier(0.05, 0.7, 0.1, 1)" },
+    "accelerate": { "value": "cubic-bezier(0.3, 0, 0.8, 0.15)" },
+    "emphasized": { "value": "cubic-bezier(0.32, 1.4, 0.5, 1)" },
+    "linear":     { "value": "linear" }
+  },
+
+  "zindex": {
+    "base":     { "value": "0" },
+    "sticky":   { "value": "100" },
+    "sidebar":  { "value": "200" },
+    "dropdown": { "value": "800" },
+    "overlay":  { "value": "900" },
+    "dialog":   { "value": "1000" },
+    "palette":  { "value": "1100" },
+    "toast":    { "value": "1200" },
+    "tooltip":  { "value": "1300" }
+  }
+}

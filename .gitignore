@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build-out/
+coverage/
+*.log
+.DS_Store
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.tsbuildinfo
+.cache/
+ui/tokens/dist/
+ui/*/storybook-static/
+tests/benchmarks/results/*.json

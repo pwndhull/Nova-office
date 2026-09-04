@@ -1,0 +1,53 @@
+{
+  "$description": "Motion tokens. Springs are expressed as physical parameters (stiffness/damping/mass) so the same values drive both the web prototypes and the native VCL animator; the build also emits a solved cubic-bezier + duration approximation for CSS-only consumers.",
+
+  "spring": {
+    "snappy": {
+      "$description": "Default for controls: buttons, toggles, tabs. Settles in ~180ms with no visible overshoot.",
+      "stiffness": 420, "damping": 34, "mass": 1
+    },
+    "smooth": {
+      "$description": "Panels and sheets. Slightly softer landing.",
+      "stiffness": 280, "damping": 30, "mass": 1
+    },
+    "bouncy": {
+      "$description": "Elements that gain focus and should feel physical — the command palette, a dialog appearing. Small, deliberate overshoot.",
+      "stiffness": 380, "damping": 24, "mass": 1
+    },
+    "gentle": {
+      "$description": "Large-surface transitions: workspace view changes, focus-mode entry.",
+      "stiffness": 180, "damping": 26, "mass": 1
+    }
+  },
+
+  "transition": {
+    "$description": "Named CSS transitions. Pair a duration with an easing; components should not invent combinations.",
+    "hover":    { "duration": "{duration.fast}", "easing": "{easing.standard}" },
+    "control":  { "duration": "{duration.base}", "easing": "{easing.standard}" },
+    "panel":    { "duration": "{duration.slow}", "easing": "{easing.decelerate}" },
+    "overlay":  { "duration": "{duration.base}", "easing": "{easing.emphasized}" },
+    "exit":     { "duration": "{duration.fast}", "easing": "{easing.accelerate}" }
+  },
+
+  "distance": {
+    "$description": "How far an element travels on enter/exit. Nova keeps travel short — motion communicates origin, it is not the effect.",
+    "nudge": "{size.1}",
+    "slide-sm": "{size.2}",
+    "slide-md": "{size.4}",
+    "slide-lg": "{size.8}"
+  },
+
+  "scale": {
+    "$description": "Enter/exit scale endpoints. Never scale from 0 — it reads as a cartoon.",
+    "enter-from": "0.96",
+    "exit-to": "0.98",
+    "press": "0.97"
+  },
+
+  "reduced-motion": {
+    "$description": "Values substituted when `prefers-reduced-motion: reduce` is set. Transitions collapse to a near-instant opacity change; transforms are dropped entirely by the motion package.",
+    "duration": "{duration.instant}",
+    "opacity-duration": "{duration.fast}",
+    "easing": "{easing.linear}"
+  }
+}

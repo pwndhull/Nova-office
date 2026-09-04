@@ -1,0 +1,201 @@
+{
+  "$description": "Semantic tokens. These are the ONLY tokens components may reference. Each leaf carries one value per mode; the build emits a :root block plus per-mode override blocks. A `{...}` value is a reference into primitives.json.",
+  "$modes": ["light", "dark", "hc-light", "hc-dark"],
+
+  "bg": {
+    "canvas": {
+      "$description": "The application ground. Everything else sits on this.",
+      "light": "{color.gray.100}", "dark": "{color.gray.950}",
+      "hc-light": "{color.gray.0}", "hc-dark": "{color.gray.1000}"
+    },
+    "surface": {
+      "$description": "Default panel/card surface — documents, sidebars, dialogs.",
+      "light": "{color.gray.0}", "dark": "{color.gray.900}",
+      "hc-light": "{color.gray.0}", "hc-dark": "{color.gray.1000}"
+    },
+    "surface-raised": {
+      "$description": "Surfaces that float above `surface`: menus, popovers, the command palette.",
+      "light": "{color.gray.0}", "dark": "{color.gray.850}",
+      "hc-light": "{color.gray.0}", "hc-dark": "{color.gray.1000}"
+    },
+    "surface-sunken": {
+      "$description": "Recessed wells: input fields, the Calc grid gutter, code blocks.",
+      "light": "{color.gray.50}", "dark": "{color.gray.950}",
+      "hc-light": "{color.gray.50}", "hc-dark": "{color.gray.1000}"
+    },
+    "hover": {
+      "light": "{color.alpha.black-4}", "dark": "{color.alpha.white-8}",
+      "hc-light": "{color.alpha.black-8}", "hc-dark": "{color.alpha.white-12}"
+    },
+    "active": {
+      "light": "{color.alpha.black-8}", "dark": "{color.alpha.white-12}",
+      "hc-light": "{color.alpha.black-12}", "hc-dark": "{color.alpha.white-24}"
+    },
+    "selected": {
+      "light": "{color.indigo.50}", "dark": "{color.indigo.900}",
+      "hc-light": "{color.indigo.100}", "hc-dark": "{color.indigo.800}"
+    },
+    "scrim": {
+      "$description": "Behind modals. Not a material — no blur, just a dimming layer.",
+      "light": "{color.alpha.black-24}", "dark": "{color.alpha.black-64}",
+      "hc-light": "{color.alpha.black-48}", "hc-dark": "{color.alpha.black-64}"
+    },
+    "material-thin": {
+      "$description": "Translucent chrome (toolbars, tab strips). Pairs with --nova-blur-thin. High-contrast modes drop translucency entirely — see docs/design-system.md#materials.",
+      "light": "rgba(255, 255, 255, 0.72)", "dark": "rgba(34, 40, 52, 0.72)",
+      "hc-light": "{color.gray.0}", "hc-dark": "{color.gray.1000}"
+    },
+    "material-regular": {
+      "light": "rgba(255, 255, 255, 0.82)", "dark": "rgba(34, 40, 52, 0.84)",
+      "hc-light": "{color.gray.0}", "hc-dark": "{color.gray.1000}"
+    },
+    "material-thick": {
+      "light": "rgba(252, 252, 253, 0.94)", "dark": "rgba(24, 29, 39, 0.94)",
+      "hc-light": "{color.gray.0}", "hc-dark": "{color.gray.1000}"
+    }
+  },
+
+  "text": {
+    "primary": {
+      "light": "{color.gray.900}", "dark": "{color.gray.50}",
+      "hc-light": "{color.gray.1000}", "hc-dark": "{color.gray.0}"
+    },
+    "secondary": {
+      "light": "{color.gray.700}", "dark": "{color.gray.400}",
+      "hc-light": "{color.gray.800}", "hc-dark": "{color.gray.150}"
+    },
+    "tertiary": {
+      "$description": "Metadata, placeholder text, inactive tab labels. This is still text, so it holds 4.5:1 on every surface it is allowed on — it is NOT a licence to go light. gray.500 was too faint in light mode (3.6:1) and was darkened to gray.600.",
+      "light": "{color.gray.600}", "dark": "{color.gray.500}",
+      "hc-light": "{color.gray.700}", "hc-dark": "{color.gray.300}"
+    },
+    "disabled": {
+      "$description": "Exempt from contrast minimums per WCAG 2.2 (inactive controls), but kept legible on purpose.",
+      "light": "{color.gray.400}", "dark": "{color.gray.600}",
+      "hc-light": "{color.gray.600}", "hc-dark": "{color.gray.400}"
+    },
+    "inverse": {
+      "light": "{color.gray.0}", "dark": "{color.gray.950}",
+      "hc-light": "{color.gray.0}", "hc-dark": "{color.gray.1000}"
+    },
+    "accent": {
+      "light": "{color.indigo.600}", "dark": "{color.indigo.300}",
+      "hc-light": "{color.indigo.800}", "hc-dark": "{color.indigo.200}"
+    },
+    "on-accent": {
+      "$description": "Label colour on a filled accent surface. Light modes fill dark and label white; dark modes fill BRIGHT and label near-black. That inversion is forced, not stylistic: on a dark ground the fill must clear 3:1 against the surface while the label clears 4.5:1 against the fill, and no single indigo step satisfies both with a white label.",
+      "light": "{color.gray.0}", "dark": "{color.gray.950}",
+      "hc-light": "{color.gray.0}", "hc-dark": "{color.gray.1000}"
+    }
+  },
+
+  "border": {
+    "$description": "Two families here, and the distinction is a WCAG one. `subtle` and `default` are DECORATIVE separators — they group and align, and removing them loses no information, so SC 1.4.11 does not apply. `control` and `strong` are the visible boundary of an interactive control; they carry meaning and must hold 3:1 against their surface. Never use `default` as a control boundary.",
+    "subtle": {
+      "$description": "Decorative hairlines: list rows, toolbar groups, table rules.",
+      "light": "{color.gray.150}", "dark": "{color.alpha.white-8}",
+      "hc-light": "{color.gray.700}", "hc-dark": "{color.gray.300}"
+    },
+    "default": {
+      "$description": "Decorative. Panel edges, card outlines, section dividers.",
+      "light": "{color.gray.200}", "dark": "{color.alpha.white-12}",
+      "hc-light": "{color.gray.900}", "hc-dark": "{color.gray.150}"
+    },
+    "control": {
+      "$description": "The boundary of an interactive control — text inputs, selects, secondary buttons, checkboxes. Meaningful, so ≥3:1 against surface and canvas in every mode.",
+      "light": "{color.gray.500}", "dark": "{color.gray.500}",
+      "hc-light": "{color.gray.1000}", "hc-dark": "{color.gray.0}"
+    },
+    "strong": {
+      "$description": "Emphasised or selected control boundary. Also ≥3:1.",
+      "light": "{color.gray.600}", "dark": "{color.gray.400}",
+      "hc-light": "{color.gray.1000}", "hc-dark": "{color.gray.0}"
+    },
+    "focus": {
+      "$description": "The focus ring. Deliberately high-chroma so it never reads as a border.",
+      "light": "{color.indigo.500}", "dark": "{color.indigo.400}",
+      "hc-light": "{color.indigo.800}", "hc-dark": "{color.amber.300}"
+    }
+  },
+
+  "accent": {
+    "$description": "Filled accent surfaces. The ramp runs DARKER on hover/press in light modes and BRIGHTER in dark modes — in both cases the interaction moves away from the surface, and the label token (text.on-accent) inverts to match.",
+    "default": {
+      "light": "{color.indigo.600}", "dark": "{color.indigo.400}",
+      "hc-light": "{color.indigo.800}", "hc-dark": "{color.indigo.300}"
+    },
+    "hover": {
+      "light": "{color.indigo.700}", "dark": "{color.indigo.300}",
+      "hc-light": "{color.indigo.900}", "hc-dark": "{color.indigo.200}"
+    },
+    "active": {
+      "light": "{color.indigo.800}", "dark": "{color.indigo.200}",
+      "hc-light": "{color.indigo.900}", "hc-dark": "{color.indigo.100}"
+    },
+    "subtle": {
+      "light": "{color.indigo.50}", "dark": "{color.indigo.900}",
+      "hc-light": "{color.indigo.100}", "hc-dark": "{color.indigo.800}"
+    }
+  },
+
+  "status": {
+    "success-fg": {
+      "light": "{color.green.700}", "dark": "{color.green.300}",
+      "hc-light": "{color.green.900}", "hc-dark": "{color.green.200}"
+    },
+    "success-bg": {
+      "light": "{color.green.50}", "dark": "{color.green.900}",
+      "hc-light": "{color.green.100}", "hc-dark": "{color.gray.1000}"
+    },
+    "warning-fg": {
+      "light": "{color.amber.700}", "dark": "{color.amber.300}",
+      "hc-light": "{color.amber.900}", "hc-dark": "{color.amber.200}"
+    },
+    "warning-bg": {
+      "light": "{color.amber.50}", "dark": "{color.amber.900}",
+      "hc-light": "{color.amber.100}", "hc-dark": "{color.gray.1000}"
+    },
+    "danger-fg": {
+      "light": "{color.red.600}", "dark": "{color.red.300}",
+      "hc-light": "{color.red.800}", "hc-dark": "{color.red.200}"
+    },
+    "danger-bg": {
+      "light": "{color.red.50}", "dark": "{color.red.900}",
+      "hc-light": "{color.red.100}", "hc-dark": "{color.gray.1000}"
+    },
+    "info-fg": {
+      "light": "{color.teal.700}", "dark": "{color.teal.300}",
+      "hc-light": "{color.teal.900}", "hc-dark": "{color.teal.200}"
+    },
+    "info-bg": {
+      "light": "{color.teal.50}", "dark": "{color.teal.900}",
+      "hc-light": "{color.teal.100}", "hc-dark": "{color.gray.1000}"
+    }
+  },
+
+  "elevation": {
+    "$description": "Elevation pairs a shadow with an implied surface. Dark modes lean on lighter surfaces rather than deeper shadows, because shadow is nearly invisible on a dark ground.",
+    "resting": {
+      "light": "{shadow.xs}", "dark": "{shadow.dark-sm}",
+      "hc-light": "none", "hc-dark": "none"
+    },
+    "raised": {
+      "light": "{shadow.sm}", "dark": "{shadow.dark-sm}",
+      "hc-light": "none", "hc-dark": "none"
+    },
+    "floating": {
+      "$description": "Popovers, dropdowns, the floating Writer toolbar.",
+      "light": "{shadow.md}", "dark": "{shadow.dark-md}",
+      "hc-light": "none", "hc-dark": "none"
+    },
+    "overlay": {
+      "$description": "Command palette, dialogs.",
+      "light": "{shadow.lg}", "dark": "{shadow.dark-lg}",
+      "hc-light": "none", "hc-dark": "none"
+    },
+    "modal": {
+      "light": "{shadow.xl}", "dark": "{shadow.dark-xl}",
+      "hc-light": "none", "hc-dark": "none"
+    }
+  }
+}

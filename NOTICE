@@ -1,0 +1,32 @@
+Nova Office
+===========
+
+Copyright (c) 2026 The Nova Office contributors.
+
+This product is a derivative work based on the LibreOffice project
+(https://www.libreoffice.org/), which is itself based on OpenOffice.org.
+
+  Portions Copyright (c) 2000, 2024 LibreOffice contributors and/or their affiliates.
+  Portions Copyright (c) The Apache Software Foundation.
+  Portions Copyright (c) Sun Microsystems, Inc.
+
+This software is made available under the Mozilla Public License, v. 2.0
+(see the LICENSE file). Files that carry their own license headers retain
+those licenses; nothing in this NOTICE overrides a per-file license grant.
+
+Trademarks
+----------
+
+"LibreOffice" and the LibreOffice logo are registered trademarks of The
+Document Foundation. "OpenOffice.org" and "OpenOffice" are trademarks of
+The Apache Software Foundation. Nova Office is an independent project and is
+not endorsed by, affiliated with, or sponsored by The Document Foundation or
+The Apache Software Foundation.
+
+Nova Office does not ship, display, or distribute the LibreOffice or
+OpenOffice.org trademarks in its branding. All user-visible product branding
+has been replaced with "Nova Office" branding and assets, as recorded in
+docs/licensing.md and assets/branding/.
+
+Required attribution notices from upstream source files are preserved in
+place. See docs/licensing.md for the full compliance policy.
