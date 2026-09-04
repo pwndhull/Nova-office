@@ -1,0 +1,28 @@
+{
+  "name": "@nova/tests",
+  "version": "0.1.0",
+  "description": "Nova Office cross-package integration tests and performance budgets.",
+  "license": "MPL-2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "bench": "vitest run benchmarks/budgets.test.ts",
+    "bench:track": "vitest bench --run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@nova/components": "0.1.0",
+    "@nova/icons": "0.1.0",
+    "@nova/motion": "0.1.0",
+    "@nova/tokens": "0.1.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "jsdom": "^25.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

@@ -9,7 +9,8 @@
     "ui/motion",
     "ui/icons",
     "ui/components",
-    "ui/playground"
+    "ui/playground",
+    "tests"
   ],
   "engines": {
     "node": ">=20"

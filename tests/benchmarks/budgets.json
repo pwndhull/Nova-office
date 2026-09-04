@@ -1,0 +1,25 @@
+{
+  "$comment": "Performance budgets for Nova Office hot paths. Numbers are wall-clock milliseconds on CI-class hardware with ~2x headroom over observed local runs, so a failure means a real regression, not noise. Tighten as the real app surfaces land (Phase 13).",
+  "budgets": {
+    "fuzzy.rank.500-commands": {
+      "description": "Rank a 500-command set against a typical 4-char query — one keystroke's work in the command palette.",
+      "maxMs": 8,
+      "iterations": 200
+    },
+    "fuzzy.rank.cold-first-keystroke": {
+      "description": "First keystroke against 500 commands (single char, widest result set).",
+      "maxMs": 10,
+      "iterations": 200
+    },
+    "motion.spring.10k-samples": {
+      "description": "10,000 closed-form spring evaluations — a frame's worth of many concurrent animations.",
+      "maxMs": 6,
+      "iterations": 50
+    },
+    "tokens.build": {
+      "description": "Full design-token build (JSON -> CSS + SCSS + TS + JSON). Runs in CI before install, so it must stay fast.",
+      "maxMs": 1500,
+      "iterations": 1
+    }
+  }
+}
