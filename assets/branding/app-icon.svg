@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Nova Office app icon (placeholder)">
+  <title>Nova Office — app icon (placeholder)</title>
+  <!-- PLACEHOLDER. macOS/Windows/Linux app icon. Rounded-rect superellipse-ish
+       corner (radius ~ 22.5% per current platform conventions). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F7F7FB"/>
+      <stop offset="1" stop-color="#E9E9F4"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5B5BF0"/>
+      <stop offset="1" stop-color="#3D3DD6"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="24" width="464" height="464" rx="116" fill="url(#bg)"/>
+  <path fill="url(#mark)" transform="translate(96 96) scale(3.333)" d="
+    M48 8 C52 30 66 44 88 48 C66 52 52 66 48 88 C44 66 30 52 8 48 C30 44 44 30 48 8 Z"/>
+  <circle cx="256" cy="256" r="22" fill="#fff"/>
+</svg>

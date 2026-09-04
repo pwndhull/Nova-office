@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="72" viewBox="0 0 360 72" role="img" aria-label="Nova Office (placeholder wordmark)">
+  <title>Nova Office — wordmark (placeholder)</title>
+  <!-- PLACEHOLDER. System font so it renders anywhere; a final wordmark would
+       be outlined. -->
+  <g transform="translate(0 4)">
+    <path fill="#3D3DD6" transform="translate(0 12) scale(0.5)" d="
+      M48 8 C52 30 66 44 88 48 C66 52 52 66 48 88 C44 66 30 52 8 48 C30 44 44 30 48 8 Z"/>
+    <text x="60" y="46" font-family="-apple-system, 'Segoe UI', Inter, Roboto, sans-serif"
+          font-size="40" font-weight="600" letter-spacing="-0.5" fill="#1A1A2E">Nova</text>
+    <text x="176" y="46" font-family="-apple-system, 'Segoe UI', Inter, Roboto, sans-serif"
+          font-size="40" font-weight="400" letter-spacing="-0.5" fill="#4A4A63">Office</text>
+  </g>
+</svg>
