@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Release channel
+        type: choice
+        options: [nightly, beta, stable]
+        default: beta
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20.11.0', cache: npm }
+      - id: v
+        run: echo "version=$(node scripts/version.mjs print --plain)" >> "$GITHUB_OUTPUT"
+
+  build-ui:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20.11.0', cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nova-ui-${{ needs.version.outputs.version }}
+          path: |
+            ui/*/dist
+            ui/tokens/dist
+
+  # Engine packaging (dmg / msi / AppImage) + code signing — Track B.
+  # See docs/release.md for the full pipeline and signing key handling.
+  package:
+    needs: [version, build-ui]
+    if: ${{ vars.ENGINE_BUILD == '1' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Packaging + signing steps live in docs/release.md"
