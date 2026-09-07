@@ -95,8 +95,9 @@ jobs:
           node scripts/build-tokens.mjs
           node scripts/gen-branding.mjs
           # low-memory, size-trimmed, CI-friendly flags
+          # LTO is off by default; --without-lto is not a real flag.
           ./scripts/nova-autogen.sh \
-            --disable-mergelibs --without-lto --enable-ccache \
+            --disable-mergelibs --enable-ccache \
             --without-help --without-myspell-dicts \
             --with-parallelism=4 \
             --with-external-tar="$HOME/lo-tarballs"

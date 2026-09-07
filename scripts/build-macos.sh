@@ -72,7 +72,7 @@ NCPU=$(sysctl -n hw.ncpu)
 if (( RAM_GB <= 8 )); then
   JOBS=3
   LOWMEM=1
-  log "detected ${RAM_GB} GB RAM — using -j${JOBS}, --disable-mergelibs, --without-lto"
+  log "detected ${RAM_GB} GB RAM — using -j${JOBS}, --disable-mergelibs (LTO already off by default)"
   log "  a first build here is LONG (~6-10 h) and link steps may swap hard."
   log "  close other apps; ensure ~50 GB free disk; consider running overnight."
 elif (( RAM_GB <= 16 )); then
@@ -87,7 +87,7 @@ if [[ "$MODE" != "--resume" ]]; then
   EXTRA=()
   command -v ccache >/dev/null && EXTRA+=(--enable-ccache) || \
     log "ccache NOT found — install it (brew install ccache) or rebuilds cost hours again"
-  (( LOWMEM )) && EXTRA+=(--disable-mergelibs --without-lto)
+  (( LOWMEM )) && EXTRA+=(--disable-mergelibs)
   [[ -n "${NOVA_RELEASE_BUILD:-}" ]] && EXTRA+=(--enable-release-build)
   ./scripts/nova-autogen.sh "${EXTRA[@]}"
   ( cd "$SUBMOD" && ./autogen.sh )
