@@ -9,7 +9,7 @@
 <!DOCTYPE oor:component-schema SYSTEM "../../../component-schema.dtd">
 <oor:component-schema xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" oor:name="Nova" oor:package="org.openoffice" xml:lang="en-US">
   <info>
-    <desc>Nova-Office settings: appearance, workspace, sync, AI, telemetry.</desc>
+    <desc>Nova settings: appearance, workspace, sync, AI, telemetry.</desc>
   </info>
   <templates/>
   <component>
