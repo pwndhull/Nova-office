@@ -219,15 +219,27 @@ ${entries}
 // Verified against the pinned source: the product name/vendor come from
 // ./configure, not a config patch (officecfg/Setup.xcu uses ${PRODUCTNAME}).
 // scripts/nova-autogen.sh appends these.
+//
+// autogen.input is "one argument per line", read verbatim by LibreOffice's
+// autogen.sh (Perl `read_args`) — no shell parsing, no quote removal. So the
+// value must be the *raw* string: `--with-vendor=The Nova-Office contributors`,
+// not `--with-vendor='...'`. Wrapping it in quotes put literal `'` characters
+// into OOO_VENDOR, which then broke LibreOffice's own single-quoted sed in
+// postprocess/CustomTarget_registry.mk ("unterminated `s' command" on main.xcd).
 {
-  const sh = (s) => `'${String(s).replace(/'/g, "'\\''")}'`;
+  const flagValue = (label, s) => {
+    const v = String(s);
+    if (v.includes("\n")) throw new Error(`${label} contains a newline — cannot be an autogen.input flag`);
+    if (v.startsWith("'") || v.startsWith("#")) throw new Error(`${label} may not start with a quote or '#' (autogen.input parsing)`);
+    return v;
+  };
   const lines = [
     `# ${GEN}`,
-    `--with-product-name=${sh(cfg.product.name)}`,
-    `--with-vendor=${sh(cfg.product.vendor)}`,
+    `--with-product-name=${flagValue("product.name", cfg.product.name)}`,
+    `--with-vendor=${flagValue("product.vendor", cfg.product.vendor)}`,
   ];
   const priv = cfg.urls && (cfg.urls.privacy || `${cfg.urls.homepage}/privacy`);
-  if (priv) lines.push(`--with-privacy-policy-url=${sh(priv)}`);
+  if (priv) lines.push(`--with-privacy-policy-url=${flagValue("privacy url", priv)}`);
   if (!String(cfg.product.version).includes("-")) lines.push("--enable-release-build");
   written.push(write("nova-configure-flags", lines.join("\n") + "\n"));
 }
