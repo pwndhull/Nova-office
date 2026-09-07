@@ -3,16 +3,20 @@
 # Copyright (c) 2026 The Nova-Office contributors
 #
 # Fetch / pin the LibreOffice upstream that Nova-Office builds on.
-# Registers it as a git submodule at third_party/libreoffice and records the
-# exact pin (tag + commit + date + Nova configure flags) in third_party/UPSTREAM_PIN.
+#
+# By default does a plain shallow clone into third_party/libreoffice/ (which is
+# gitignored — no pollution of this repo). Pass --submodule to register it as a
+# proper git submodule instead (for maintainers / CI reproducibility).
+# Either way the exact pin is recorded in third_party/UPSTREAM_PIN.
 #
 # Usage:
-#   scripts/bootstrap-upstream.sh                 # use the recorded/ default pin
+#   scripts/bootstrap-upstream.sh                 # shallow clone, recorded/default pin
 #   scripts/bootstrap-upstream.sh <tag-or-branch> # pin to a specific ref
+#   scripts/bootstrap-upstream.sh --submodule     # register as a submodule
 #   NOVA_LO_REMOTE=<url> scripts/bootstrap-upstream.sh
 #
-# NOTE: This is a large checkout (multiple GB). A full LibreOffice *build*
-# additionally needs ~25-80 GB disk and hours — see docs/build-linux.md.
+# NOTE: large checkout (~2 GB). A full LibreOffice *build* additionally needs
+# ~30-50 GB disk and hours — see docs/build-macos.md / build-linux.md.
 
 set -euo pipefail
 
@@ -24,9 +28,16 @@ MIRROR="https://github.com/LibreOffice/core.git"
 SUBMOD_PATH="third_party/libreoffice"
 PIN_FILE="third_party/UPSTREAM_PIN"
 
-# Default pin: the ref requested on the CLI, else the one already recorded,
-# else "the latest libreoffice-*-* stable tag" resolved from the remote.
-REQUESTED_REF="${1:-}"
+AS_SUBMODULE=0
+REQUESTED_REF=""
+for arg in "$@"; do
+  case "$arg" in
+    --submodule) AS_SUBMODULE=1 ;;
+    -*) echo "unknown flag: $arg" >&2; exit 2 ;;
+    *) REQUESTED_REF="$arg" ;;
+  esac
+done
+
 RECORDED_REF=""
 if [[ -f "$PIN_FILE" ]]; then
   RECORDED_REF="$(grep -E '^ref:' "$PIN_FILE" | head -1 | awk '{print $2}' || true)"
@@ -55,21 +66,29 @@ if [[ -z "$REF" ]]; then
 fi
 log "Target upstream ref: $REF"
 
-# --- register / update the submodule --------------------------------------
-if [[ ! -f .gitmodules ]] || ! git config -f .gitmodules --get "submodule.${SUBMOD_PATH}.url" >/dev/null 2>&1; then
-  log "Adding submodule $SUBMOD_PATH -> $REMOTE"
-  git submodule add --depth 1 "$REMOTE" "$SUBMOD_PATH" 2>/dev/null \
-    || git submodule add --depth 1 "$MIRROR" "$SUBMOD_PATH" \
-    || die "submodule add failed for both $REMOTE and $MIRROR"
+# --- get the source ------------------------------------------------------
+clone_shallow() {
+  local url="$1"
+  git clone --depth 1 --branch "$REF" "$url" "$SUBMOD_PATH"
+}
+
+if [[ -d "$SUBMOD_PATH/.git" ]] || [[ -f "$SUBMOD_PATH/.git" ]]; then
+  log "$SUBMOD_PATH already present — fetching $REF"
+  git -C "$SUBMOD_PATH" fetch --depth 1 origin "refs/tags/${REF}:refs/tags/${REF}" 2>/dev/null \
+    || git -C "$SUBMOD_PATH" fetch --depth 1 origin "$REF" || die "fetch of $REF failed"
+  git -C "$SUBMOD_PATH" checkout --detach FETCH_HEAD 2>/dev/null \
+    || git -C "$SUBMOD_PATH" checkout --detach "$REF"
+elif (( AS_SUBMODULE )); then
+  log "Registering submodule $SUBMOD_PATH -> $REMOTE"
+  git config -f .gitmodules --get "submodule.${SUBMOD_PATH}.url" >/dev/null 2>&1 \
+    || git submodule add -f --depth 1 -b "$REF" "$REMOTE" "$SUBMOD_PATH" \
+    || git submodule add -f --depth 1 -b "$REF" "$MIRROR" "$SUBMOD_PATH" \
+    || die "submodule add failed"
+  git submodule update --init --depth 1 "$SUBMOD_PATH"
+else
+  log "Shallow-cloning LibreOffice $REF into $SUBMOD_PATH (~2 GB)…"
+  clone_shallow "$REMOTE" || clone_shallow "$MIRROR" || die "clone failed from both $REMOTE and $MIRROR"
 fi
-
-log "Fetching $REF (shallow)…"
-git -C "$SUBMOD_PATH" fetch --depth 1 origin "refs/tags/${REF}:refs/tags/${REF}" 2>/dev/null \
-  || git -C "$SUBMOD_PATH" fetch --depth 1 origin "$REF" \
-  || die "fetch of $REF failed"
-
-git -C "$SUBMOD_PATH" checkout --detach FETCH_HEAD 2>/dev/null \
-  || git -C "$SUBMOD_PATH" checkout --detach "$REF"
 
 COMMIT="$(git -C "$SUBMOD_PATH" rev-parse HEAD)"
 CDATE="$(git -C "$SUBMOD_PATH" show -s --format=%cI HEAD)"
@@ -86,7 +105,10 @@ remote: $REMOTE
 recorded: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 # Nova compliance-first configure flag set (see docs/licensing.md Sec 5).
-# scripts/nova-autogen.sh applies these to third_party/libreoffice/autogen.input.
+# scripts/nova-autogen.sh applies these + the generated branding flags
+# (--with-product-name / --with-vendor / ...) to autogen.input.
+# NB: only real LibreOffice configure options here. Nova-specific options
+# (--enable-nova etc.) are added by a patch once they exist.
 configure_flags: >-
   --disable-poppler
   --without-java
@@ -94,8 +116,6 @@ configure_flags: >-
   --disable-lpsolve
   --without-system-libcmis
   --enable-mergelibs
-  --enable-nova
-  --with-nova-product=../../product/product.yaml
 EOF
 
 log "Pinned:"

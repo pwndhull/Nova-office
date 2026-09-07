@@ -12,6 +12,10 @@ recorded: 2026-09-07T00:00:00Z
 # train per docs/upstream-strategy.md.
 
 # Nova compliance-first configure flag set (see docs/licensing.md Sec 5).
+# Real LibreOffice options only. Branding flags (--with-product-name / --with-vendor
+# / --with-privacy-policy-url) are generated from product.yaml by gen-branding.mjs
+# and appended by nova-autogen.sh. On <=8 GB RAM build-macos.sh also appends
+# --disable-mergelibs --without-lto.
 configure_flags: >-
   --disable-poppler
   --without-java
@@ -19,5 +23,3 @@ configure_flags: >-
   --disable-lpsolve
   --without-system-libcmis
   --enable-mergelibs
-  --enable-nova
-  --with-nova-product=../../product/product.yaml
