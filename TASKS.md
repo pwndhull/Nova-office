@@ -30,6 +30,8 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` pending · `[!]` blocked
 | 0.17 | ADRs 0001-0005 + template | `[x]` | submodule, MPL-2.0, CRDT, SQLite, VCL-not-web |
 | 0.18 | CI (`.github/workflows/ci.yml`) + check scripts | `[x]` | tokens, branding, no-hardcoded-branding, SPDX, unit tests |
 | 0.19 | `SECURITY.md`, docs index, module READMEs | `[x]` | |
+| 0.20 | `scripts/nova-autogen.sh`, `scripts/apply-patches.sh`, `patches/` | `[x]` | upstream build tooling complete |
+| 0.21 | `docs/requirements-traceability.md` | `[x]` | every TRD Sec 1-48 mapped to coverage + status |
 
 ## Phase 1 — Nova Shell (scaffolding this session; full impl needs LO build)
 
@@ -71,3 +73,5 @@ All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffic
   bootstrap-upstream.sh; upstream pin target = libreoffice-25.8.7.3.
 - 2026-09-07 — CI workflow, no-hardcoded-branding + SPDX check scripts,
   ADRs 0001-0005, SECURITY.md, docs index, nova/ tests/ nova-server/ READMEs.
+- 2026-09-07 — nova-autogen.sh + apply-patches.sh + patches/README;
+  requirements-traceability.md (all TRD Sec 1-48). PHASE 0 COMPLETE.
