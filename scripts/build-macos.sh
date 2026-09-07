@@ -30,6 +30,18 @@ MODE="${1:-full}"
 xcode-select -p >/dev/null 2>&1 || die "Xcode Command Line Tools missing — run: xcode-select --install"
 command -v node >/dev/null || die "node not found (needed for the token/branding generators) — install Node >= 20"
 
+# LibreOffice's autogen.sh runs autoreconf → needs the GNU autotools, which
+# macOS does not ship. Everything else LibreOffice downloads itself.
+MISSING=()
+for t in autoconf automake aclocal pkg-config gm4 autopoint; do
+  command -v "$t" >/dev/null 2>&1 || MISSING+=("$t")
+done
+if (( ${#MISSING[@]} )); then
+  die "build toolchain missing: ${MISSING[*]}
+     install it:  brew install autoconf automake libtool pkg-config gettext m4
+     (then:  brew link --force gettext   so autopoint is on PATH)"
+fi
+
 if [[ "$MODE" == "--run" ]]; then
   APP="$(find "$SUBMOD/instdir" -maxdepth 1 -name '*.app' 2>/dev/null | head -1)"
   [[ -n "$APP" ]] || die "no built .app under $SUBMOD/instdir — build first"
@@ -75,7 +87,7 @@ if [[ "$MODE" != "--resume" ]]; then
   EXTRA=()
   command -v ccache >/dev/null && EXTRA+=(--enable-ccache) || \
     log "ccache NOT found — install it (brew install ccache) or rebuilds cost hours again"
-  (( LOWMEM )) && EXTRA+=(--disable-mergelibs --without-lto --enable-dbgutil=no)
+  (( LOWMEM )) && EXTRA+=(--disable-mergelibs --without-lto)
   [[ -n "${NOVA_RELEASE_BUILD:-}" ]] && EXTRA+=(--enable-release-build)
   ./scripts/nova-autogen.sh "${EXTRA[@]}"
   ( cd "$SUBMOD" && ./autogen.sh )
