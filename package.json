@@ -1,0 +1,16 @@
+{
+  "name": "nova-office-experience-layer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Build tooling for the Nova-Office Experience Layer (design tokens, branding generation). Not shipped in the product binary.",
+  "license": "MPL-2.0",
+  "scripts": {
+    "build:tokens": "node scripts/build-tokens.mjs",
+    "build:branding": "node scripts/gen-branding.mjs",
+    "build": "npm run build:tokens && npm run build:branding",
+    "test": "node --test \"nova/**/*.test.mjs\" \"scripts/**/*.test.mjs\"",
+    "check:tokens": "node scripts/build-tokens.mjs --check"
+  },
+  "engines": { "node": ">=20" }
+}

@@ -1,0 +1,57 @@
+{
+  "$description": "Non-color scales: typography, spacing, radius, shadow, motion, z-index, sizes. SPDX-License-Identifier: MPL-2.0",
+  "typography": {
+    "family.ui":       "\"Nova Sans\", \"Inter\", -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+    "family.mono":     "\"Nova Mono\", \"IBM Plex Mono\", ui-monospace, \"SF Mono\", \"Cascadia Code\", Consolas, monospace",
+    "size.xs":   "11",
+    "size.sm":   "12",
+    "size.base": "13",
+    "size.md":   "14",
+    "size.lg":   "16",
+    "size.xl":   "20",
+    "size.2xl":  "24",
+    "size.3xl":  "32",
+    "weight.regular":  "400",
+    "weight.medium":   "500",
+    "weight.semibold": "600",
+    "line.tight":   "1.2",
+    "line.normal":  "1.45",
+    "line.relaxed": "1.6",
+    "tracking.tight":  "-0.01em",
+    "tracking.normal": "0"
+  },
+  "space": {
+    "0": "0", "1": "2", "2": "4", "3": "6", "4": "8", "5": "12", "6": "16",
+    "7": "20", "8": "24", "9": "32", "10": "40", "11": "48", "12": "64"
+  },
+  "radius": {
+    "none": "0", "sm": "4", "md": "6", "lg": "10", "xl": "16", "pill": "999"
+  },
+  "shadow": {
+    "e0": "none",
+    "e1": "0 1px 2px rgba(16,18,22,0.06), 0 1px 1px rgba(16,18,22,0.04)",
+    "e2": "0 4px 12px rgba(16,18,22,0.10), 0 1px 3px rgba(16,18,22,0.06)",
+    "e3": "0 12px 32px rgba(16,18,22,0.16), 0 4px 10px rgba(16,18,22,0.08)",
+    "e4": "0 24px 64px rgba(16,18,22,0.22), 0 8px 20px rgba(16,18,22,0.12)"
+  },
+  "motion": {
+    "duration.fast":   "120ms",
+    "duration.base":   "180ms",
+    "duration.slow":   "260ms",
+    "easing.standard": "cubic-bezier(0.2, 0, 0, 1)",
+    "easing.decel":    "cubic-bezier(0, 0, 0, 1)",
+    "easing.accel":    "cubic-bezier(0.3, 0, 1, 1)",
+    "reducedMotion.duration": "0ms"
+  },
+  "zindex": {
+    "base": "0", "sticky": "100", "sidebar": "200", "dropdown": "900",
+    "overlay": "1000", "palette": "1100", "toast": "1200", "modal": "1300"
+  },
+  "size": {
+    "control.sm": "24", "control.md": "28", "control.lg": "32",
+    "icon.sm": "16", "icon.md": "20", "icon.lg": "24",
+    "hitTarget.min": "28",
+    "sidebar.default": "260", "sidebar.min": "200", "sidebar.max": "420",
+    "tab.height": "34", "palette.width": "640"
+  }
+}
