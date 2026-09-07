@@ -142,8 +142,13 @@ Block {
 }
 ```
 
-- **CRDT:** the whole `NotesDoc` is a Yrs document (`Y.Map` root; `blocks` is a
-  `Y.Array`; each `text` is a `Y.Text`). Concurrent edits merge (TRD §13, §15).
+- **CRDT:** the `NotesDoc` is a Yrs document with **three root shared types** —
+  `meta` (`Y.Map`), `props` (`Y.Map`), `blocks` (`Y.Array`); each block is a
+  `Y.Map` with a `Y.Text` `text` and nested `children` `Y.Array`. (Root types,
+  not a single wrapper map — two independently-created replicas must merge
+  without clobbering each other's structure.) Concurrent edits merge (TRD §13,
+  §15). Implemented + convergence-tested in
+  [`nova/nova_notes/ycrdt`](../nova/nova_notes/ycrdt/) (ADR-0003).
 - **Backlinks:** a `mention`/`page` inline or block writes an edge into the
   workspace SQLite graph (`links(src_doc, src_block, dst_doc)`); backlink panel
   queries the reverse.

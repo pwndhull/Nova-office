@@ -7,10 +7,16 @@
 resolver = "2"
 members = [
     "nova/nova_sync/nova_sync_core",
+    "nova/nova_notes/ycrdt",
     # "nova/nova_notes/ycrdt",   # TODO Phase 5 — Y-CRDT wrapper (ADR-0003)
 ]
 
 [workspace.package]
 edition = "2021"
 license = "MPL-2.0"
-repository = "https://example.org/nova"
+repository = "https://github.com/pwndhull/Nova-office"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

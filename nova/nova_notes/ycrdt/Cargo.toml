@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: MPL-2.0
+[package]
+name = "ycrdt"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+description = "Nova Notes block-tree CRDT — a thin, opinionated wrapper over yrs (Y-CRDT) exposing the Nova Notes document model (docs/architecture.md §4) to the C++ nova_notes module via a C ABI. ADR-0003."
+repository = "https://github.com/pwndhull/Nova-office"
+publish = false
+
+[lib]
+crate-type = ["rlib", "staticlib"]
+
+[dependencies]
+yrs = "0.27"

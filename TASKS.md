@@ -44,6 +44,7 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` pending · `[!]` blocked
 | 1.5 | `scripts/bootstrap-upstream.sh` — clone/pin LibreOffice | `[x]` | Submodule wiring + fallback shallow clone. |
 | 1.10 | `nova_sync_core` (Rust): NovaSyncEnvelope codec + integrity + backoff + C ABI | `[x]` | 18 tests, clippy `-D warnings` + rustfmt clean, staticlib builds. Ed25519 signing + zstd = NOT IMPLEMENTED (tracked). |
 | 1.11 | Cargo workspace + Rust CI job (fmt/clippy/test/build) | `[x]` | |
+| 5.1 | `ycrdt` (Rust): Nova Notes block-tree CRDT over `yrs` + C ABI (`ycrdt.h`) | `[x]` | 13 tests incl. concurrent-insert/text-merge convergence + root-type merge + snapshot roundtrip. Rich-text marks, `.nova` package, backlink graph, GC policy = NOT IMPLEMENTED (host/later). |
 | 1.6 | Application shell (VCL-level) | `[ ]` | NOT IMPLEMENTED — requires LO build environment. Design in `docs/architecture.md` §Shell. |
 | 1.7 | Command palette component | `[ ]` | NOT IMPLEMENTED — spec in `docs/design-system.md` + `docs/architecture.md`. |
 | 1.8 | Sidebar / tabs / file browser | `[ ]` | NOT IMPLEMENTED — spec only. |
@@ -92,3 +93,5 @@ All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffic
 - 2026-09-07 — Owner decisions resolved: MPL-2.0, pin 25.8.7.3, free GitHub
   runners (best-effort nova-build job), GitHub Pages URLs, server = Rust
   (ADR-0006). product.yaml de-exampled.
+- 2026-09-07 — Phase 5 groundwork: `ycrdt` crate — Nova Notes block-tree CRDT
+  over yrs, C ABI, 13 tests proving convergence. Workspace profiles tidied.

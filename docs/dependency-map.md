@@ -113,9 +113,18 @@ No copyleft. `Cargo.lock` is committed. CI runs `cargo audit` (planned) +
 ### B.3 Collaboration (client-side)
 | Component | Choice | License | Rationale — see `collaboration-evaluation.md` |
 |-----------|--------|---------|------------------|
-| CRDT for Nova Notes | **Yjs** (`y-crdt`/**Yrs**, the Rust impl, C FFI) | MIT | Mature, small, proven block-editor CRDT. Rust core has a C API usable from C++. |
+| CRDT for Nova Notes | **Yrs** (`yrs = 0.27`, the Rust Y-CRDT) via the `ycrdt` wrapper crate + C ABI | MIT | Mature, small, proven block-editor CRDT. Client **and** reference server link the same crate. |
 | Office-doc sync model | **Custom op-log + snapshot** over UNO/redline | MPL-2.0 (ours) | Full CRDT over Writer layout is unsafe (TRD §15). |
 | Transport | WebSocket over libcurl / `sfx2` `INetMIME` or a thin `nova_net` | ours | — |
+
+#### `ycrdt` (Rust) — actual crate tree (locked in root `Cargo.lock`)
+
+`nova/nova_notes/ycrdt` depends on `yrs = 0.27` only; ~50 transitive crates.
+`cargo metadata` license audit: **every crate has a permissive option** —
+36×`MIT OR Apache-2.0`, plus MIT-only and `Unlicense OR MIT`; one crate
+(`r-efi`, a UEFI-target shim not compiled on desktop) is
+`MIT OR Apache-2.0 OR LGPL-2.1-or-later` — MIT is taken. **No mandatory
+copyleft.** CI runs `cargo deny check licenses` (planned) to keep it that way.
 
 ### B.4 Reference server (`nova-server/` — Phase 9, separate deploy)
 Language: **Rust** (ADR-0006 — decided; reuses the client's `yrs` CRDT so there
