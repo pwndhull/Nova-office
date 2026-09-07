@@ -55,11 +55,21 @@ All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffic
 
 ---
 
-## Open decisions needing owner input
+## Owner decisions — RESOLVED 2026-09-07
 
-- [ ] Confirm outbound license for new Nova code (proposed: **MPL-2.0**, matches LO).
-- [ ] Confirm LibreOffice pin target (proposed: latest stable release branch tag).
-- [ ] Hosting/domain for update + collaboration endpoints (placeholders in `product.yaml`).
+- [x] Nova code license → **MPL-2.0** (ADR-0002).
+- [x] LibreOffice pin → **libreoffice-25.8.7.3** (LO 25.8.x); bump on LO's 6-month train.
+- [x] Build host → **free GitHub-hosted runners**; `nova-build` CI job (best-effort,
+      manual/weekly, continue-on-error). Fallback: one-time cloud spot VM to seed ccache. (R-1)
+- [x] URLs/endpoints → **no custom domain**; `pwndhull.github.io/Nova-office` +
+      GitHub repo URLs; all network endpoints empty (disabled). Bundle id `io.github.pwndhull.nova`.
+- [x] Reference server language → **Rust** (axum + `yrs`/`y-sync`, shares the client CRDT) (ADR-0006).
+
+## Still open (not blocking)
+
+- [ ] Nova UI typeface (OFL-1.1 candidate: Inter / IBM Plex) — ADR.
+- [ ] Nova icon set — commission original vs. restyle an MIT/OFL base — ADR.
+- [ ] Enable GitHub Pages for the docs site (`pwndhull.github.io/Nova-office`).
 
 ## Changelog
 
@@ -79,3 +89,6 @@ All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffic
   requirements-traceability.md (all TRD Sec 1-48). PHASE 0 COMPLETE.
 - 2026-09-07 — Phase 1: nova_sync_core Rust crate (envelope wire codec, SHA-256
   integrity, full-jitter backoff, C ABI + header); Cargo workspace; Rust CI job.
+- 2026-09-07 — Owner decisions resolved: MPL-2.0, pin 25.8.7.3, free GitHub
+  runners (best-effort nova-build job), GitHub Pages URLs, server = Rust
+  (ADR-0006). product.yaml de-exampled.

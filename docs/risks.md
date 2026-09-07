@@ -37,12 +37,18 @@ small team**, not calendar time.
 
 ## 2. Top risks
 
-### R-1 — Build/infra capacity *(active now)*
-LibreOffice needs a big, long build; this dev environment can't do it.
-**Impact:** blocks all VCL/UNO-bound work. **Mitigation:** CI build host (self-
-hosted runner or cloud VM, 16-core/32GB/100GB); until then, ship the standalone-
-testable layers (tokens, branding, Rust cores, server, design). **Owner action
-needed.**
+### R-1 — Build/infra capacity *(active)*
+LibreOffice needs a ~25–50 GB, 4–6 h build; the dev Codespace can't do it, and a
+free GitHub-hosted runner is at the very edge of feasible.
+**Impact:** blocks all VCL/UNO-bound work (Phase 1 shell onward).
+**Decision (2026-09-07):** use free GitHub-hosted runners. The `nova-build` CI
+job attempts it (disk reclamation + persistent ccache + `--enable-mergelibs`),
+manual/weekly, `continue-on-error`.
+**Residual risk:** a *cold* build may exceed the 350-min job cap. **Fallback:** a
+one-time build on a borrowed 8-core+/64 GB+ machine or a cloud spot VM (a few
+hours, a few dollars) to seed the ccache artifact; the free runner then keeps it
+warm. Until a build completes once, work continues on the standalone-testable
+layers (tokens, branding, `nova_sync_core`, `ycrdt`, Notes model, server).
 
 ### R-2 — The abstraction seam leaks
 If Nova ends up needing many upstream patches, the "manageable updates" promise

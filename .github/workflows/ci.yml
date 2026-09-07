@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:      # manual trigger for the best-effort LibreOffice build
+  schedule:
+    - cron: "0 4 * * 1"   # weekly LibreOffice build attempt (Mon 04:00 UTC)
 
 jobs:
   experience-layer:
@@ -45,17 +48,67 @@ jobs:
       - run: cargo test --workspace
       - run: cargo build --workspace --release
 
-  # Placeholder for the LibreOffice-linked build. Requires a large self-hosted
-  # runner (16 core / 32 GB / 100 GB). NOT ENABLED until a build host exists
-  # (docs/risks.md R-1).
+  # LibreOffice-linked build on a free GitHub-hosted runner. This is BEST-EFFORT:
+  # a from-scratch LibreOffice build is ~25-50 GB and 4-6 h on 4 vCPU, which is
+  # at the edge of what ubuntu-latest can do even after reclaiming disk. See
+  # docs/risks.md R-1 and docs/build-linux.md §"CI on free runners".
   #
-  # nova-build:
-  #   runs-on: [self-hosted, linux, libreoffice-build]
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with: { submodules: recursive }
-  #     - run: ./scripts/bootstrap-upstream.sh
-  #     - run: ./scripts/nova-autogen.sh && make -C third_party/libreoffice
-  #     - run: make -C third_party/libreoffice check
-  #     - run: make -C third_party/libreoffice nova.check
-  #     - run: make -C tests compat offline sync conflict
+  # Triggered manually (workflow_dispatch) or weekly, NOT on every push, so it
+  # never blocks the fast jobs or burns the whole minute budget. Its result is
+  # informational until it is proven to complete (continue-on-error).
+  nova-build:
+    name: LibreOffice build (best-effort, free runner)
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+
+      - name: Reclaim disk (remove Android/.NET/GHC/etc.)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          large-packages: true
+          swap-storage: false
+
+      - name: Install LibreOffice build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get build-dep -y libreoffice || true
+          sudo apt-get install -y ccache nasm libkrb5-dev libgtk-3-dev python3-dev
+
+      - uses: hendrikmuhs/ccache-action@v1
+        with: { key: libreoffice-nova, max-size: "5G" }
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Bootstrap upstream + generators
+        run: |
+          ./scripts/bootstrap-upstream.sh
+          node scripts/build-tokens.mjs
+          node scripts/gen-branding.mjs
+
+      - name: Configure (Nova compliance-first flags + mergelibs)
+        run: |
+          ./scripts/nova-autogen.sh --enable-mergelibs --disable-cve-tests \
+            --without-doxygen --enable-ccache
+          (cd third_party/libreoffice && ./autogen.sh)
+
+      - name: Build
+        run: make -C third_party/libreoffice build-nocheck
+
+      - name: Upstream + Nova tests
+        run: |
+          make -C third_party/libreoffice unitcheck || true
+          # make -C third_party/libreoffice nova.check   # once nova_* modules exist
+
+      - name: Upload instdir
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nova-office-linux
+          path: third_party/libreoffice/instdir
+          retention-days: 5
+          if-no-files-found: ignore

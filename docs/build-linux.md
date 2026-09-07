@@ -69,8 +69,27 @@ make -C ../../tests offline sync conflict
 from `scp2` overlays generated from `product.yaml`. AppImage/Flatpak manifests
 in `nova-server/deploy/` … actually `packaging/linux/` — **TODO Phase 10**.
 
-## 7. Status
+## 7. CI on free GitHub-hosted runners
 
-`bootstrap-upstream.sh` is implemented. `nova-autogen.sh` and the Nova gbuild
-modules are **NOT IMPLEMENTED** yet (need a machine that can actually build LO).
+The `nova-build` job in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
+attempts the LibreOffice build on a stock `ubuntu-latest` runner (4 vCPU / 16 GB
+RAM / ~14 GB SSD). This is **best-effort**:
+
+- `jlumbroso/free-disk-space` reclaims ~25–30 GB (Android SDK, .NET, GHC, …) →
+  ~40–55 GB usable. A `--enable-mergelibs` build fits; a full debug build may not.
+- `hendrikmuhs/ccache-action` persists a 5 GB ccache between runs, so the
+  *first* run is slow (4–6 h, may hit the 350-min cap) and later runs are fast.
+- It runs only on **manual dispatch** or the **weekly schedule**, never on push,
+  and is `continue-on-error` until it is proven to complete end-to-end.
+- On success it uploads `instdir/` as an artifact (5-day retention).
+
+If the free runner proves unable to finish a cold build, the fallback is a
+one-time build on any 8-core+/64 GB+/100 GB machine (a cloud spot VM for a few
+hours is enough) to seed the ccache artifact, after which the free runner keeps
+it warm. Tracked as [`risks.md`](risks.md) R-1.
+
+## 8. Status
+
+`bootstrap-upstream.sh` and `nova-autogen.sh` are implemented. The Nova gbuild
+modules are **NOT IMPLEMENTED** yet (created per phase once a build completes).
 This document is the target procedure.

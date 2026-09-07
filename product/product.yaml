@@ -48,10 +48,11 @@ apps:
     based_on: "nova_shell"
 
 urls:
-  homepage: "https://example.org/nova"
-  support: "https://example.org/nova/support"
-  docs: "https://example.org/nova/docs"
-  bug_report: "https://example.org/nova/bugs"
+  # No custom domain yet — GitHub Pages / repo URLs. Swap when a domain exists.
+  homepage: "https://pwndhull.github.io/Nova-office"
+  support: "https://github.com/pwndhull/Nova-office/discussions"
+  docs: "https://pwndhull.github.io/Nova-office/docs"
+  bug_report: "https://github.com/pwndhull/Nova-office/issues"
 
 endpoints:
   # Empty string = feature disabled. Rebrandable / self-hostable.
@@ -67,7 +68,7 @@ branding:
   primary_color: "#4C6FFF"
 
 identifiers:
-  bundle_id_prefix: "org.example.nova"
+  bundle_id_prefix: "io.github.pwndhull.nova"
   mime_prefix: "application/vnd.nova"
   url_scheme: "nova"
 

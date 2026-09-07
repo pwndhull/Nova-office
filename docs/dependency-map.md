@@ -118,16 +118,22 @@ No copyleft. `Cargo.lock` is committed. CI runs `cargo audit` (planned) +
 | Transport | WebSocket over libcurl / `sfx2` `INetMIME` or a thin `nova_net` | ours | — |
 
 ### B.4 Reference server (`nova-server/` — Phase 9, separate deploy)
+Language: **Rust** (ADR-0006 — decided; reuses the client's `yrs` CRDT so there
+is exactly one merge implementation).
+
 | Component | Choice | License | Notes |
 |-----------|--------|---------|-------|
-| Language / runtime | **Rust** (axum) *or* **Go** — ADR pending | MIT/Apache/BSD | Single static binary, easy self-host (TRD §16, §17) |
-| DB | **PostgreSQL** | PostgreSQL (BSD-like) | metadata, permissions, versions |
-| Object storage | **S3-compatible** (MinIO for self-host) | AGPL-3.0 (MinIO) ⚠️ — or filesystem driver default | document blobs; keep a plain-FS backend so MinIO is optional |
-| Cache / pubsub | **Redis / Valkey** | BSD-3 (Valkey) | presence fan-out |
-| Auth | **OIDC** (any provider) + local password (argon2) | — | provider-neutral |
-| Search | **PostgreSQL FTS** default; OpenSearch optional | BSD / Apache-2.0 | |
-| Realtime CRDT sync | **y-sync / y-websocket protocol** (server side in chosen lang) | MIT | matches client Yjs |
-| Container | **Docker / OCI**, compose + Helm | Apache-2.0 | |
+| HTTP / async | **axum + tokio + hyper + tower** | MIT | single static binary, easy self-host (TRD §16, §17) |
+| CRDT sync | **`yrs` + `y-sync`** | MIT | *same crate as the client*; provider-neutral y-sync framing |
+| Envelope codec | **`nova_sync_core`** (this repo) | MPL-2.0 | shared with the client |
+| DB access | **`sqlx`** → **PostgreSQL** | MIT/Apache-2.0 / PostgreSQL (BSD-like) | metadata, permissions, versions |
+| Object storage | **filesystem driver (default)** + optional **S3** (`object_store` / `aws-sdk-s3`) | Apache-2.0/MIT | plain-FS default so no AGPL MinIO dependency |
+| Cache / pubsub (optional) | **Valkey** (`redis` crate client) | BSD-3 / MIT | presence fan-out; optional |
+| Auth | **`openidconnect`** + **`argon2`** | MIT/Apache-2.0 | provider-neutral OIDC + local passwords |
+| Search | **PostgreSQL FTS** default; OpenSearch optional | PostgreSQL / Apache-2.0 | |
+| Serialization | **`serde`** | MIT/Apache-2.0 | shared envelope types |
+| Container | **distroless / scratch** OCI image, compose + Helm | Apache-2.0 | static musl build |
+| Supply chain | **`cargo audit` + `cargo deny`** in CI | — | |
 
 ### B.5 AI (optional, off by default — TRD §20)
 | Component | Choice | License | Notes |

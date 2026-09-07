@@ -10,16 +10,17 @@ documented API + wire contract is a valid substitute; this is the reference.
 the client (Phase 8) and third-party servers can be built against a stable
 contract.
 
-## Modules (planned)
+## Crates (planned — Rust workspace members)
 
 ```
-api/       REST: auth, workspaces, documents, shares, permissions, versions, comments, activity
-auth/      OIDC (Authorization Code + PKCE) | local password (Argon2id) | personal access tokens
-sync/      NovaSyncEnvelope ingest/relay; revision graph; conflict signalling
-collab/    WebSocket: y-sync protocol (Notes/metadata) + LOK session arbitration (Office, EXPERIMENTAL)
-storage/   blob store — filesystem driver (default, no extra deps) | S3-compatible (optional)
-search/    PostgreSQL FTS (default) | OpenSearch (optional)
-notify/    email / webhook / push fan-out
+nova-server-api       REST: auth, workspaces, documents, shares, permissions, versions, comments, activity
+nova-server-auth      OIDC (Authorization Code + PKCE) | local password (Argon2id) | personal access tokens
+nova-server-sync      NovaSyncEnvelope ingest/relay (reuses nova_sync_core); revision graph; conflict signalling
+nova-server-collab    WebSocket: y-sync (yrs) for Notes/metadata + LOK session arbitration (Office, EXPERIMENTAL)
+nova-server-storage   blob store trait — filesystem driver (default, no extra deps) | S3 driver (optional)
+nova-server-search    PostgreSQL FTS (default) | OpenSearch (optional)
+nova-server-notify    email / webhook / push fan-out
+nova-server           the binary — wires the above; `cargo run` / distroless Docker image
 ```
 
 ## Data
@@ -50,7 +51,11 @@ Targets: Docker, Linux, VPS, NAS, private server, cloud (TRD §17).
 | Comments | `GET/POST /docs/{id}/comments` (also flow through the Yrs subdoc) |
 | Activity | `GET /docs/{id}/activity` |
 
-## License
+## License & stack
 
-MPL-2.0 (or Apache-2.0 — ADR pending, see [`../docs/licensing.md`](../docs/licensing.md) §2).
-Language: Rust (axum) or Go — ADR pending.
+- **License:** MPL-2.0 ([`../docs/licensing.md`](../docs/licensing.md) §2).
+- **Language: Rust** — `axum` + `tokio`, **`yrs` + `y-sync`** (the same CRDT the
+  client uses — one implementation, one wire format), `sqlx` → PostgreSQL,
+  filesystem blob driver by default (S3 optional), `openidconnect` + Argon2.
+  Rationale: [`../docs/adr/0006-server-language-rust.md`](../docs/adr/0006-server-language-rust.md).
+- Joins the root Cargo workspace when Phase 9 starts.
