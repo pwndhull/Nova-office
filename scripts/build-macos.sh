@@ -54,20 +54,39 @@ log "building design tokens + branding artifacts…"
 node scripts/build-tokens.mjs
 node scripts/gen-branding.mjs
 
+# --- RAM-aware tuning -------------------------------------------------
+RAM_GB=$(( $(sysctl -n hw.memsize) / 1073741824 ))
+NCPU=$(sysctl -n hw.ncpu)
+if (( RAM_GB <= 8 )); then
+  JOBS=3
+  LOWMEM=1
+  log "detected ${RAM_GB} GB RAM — using -j${JOBS}, --disable-mergelibs, --without-lto"
+  log "  a first build here is LONG (~6-10 h) and link steps may swap hard."
+  log "  close other apps; ensure ~50 GB free disk; consider running overnight."
+elif (( RAM_GB <= 16 )); then
+  JOBS=$(( NCPU > 6 ? 6 : NCPU )); LOWMEM=0
+else
+  JOBS=$NCPU; LOWMEM=0
+fi
+
 # --- 3. configure -----------------------------------------------------
 if [[ "$MODE" != "--resume" ]]; then
   log "writing autogen.input (Nova flags) + running autogen.sh…"
   EXTRA=()
-  command -v ccache >/dev/null && EXTRA+=(--enable-ccache)
-  ./scripts/nova-autogen.sh --enable-release-build "${EXTRA[@]}"
+  command -v ccache >/dev/null && EXTRA+=(--enable-ccache) || \
+    log "ccache NOT found — install it (brew install ccache) or rebuilds cost hours again"
+  (( LOWMEM )) && EXTRA+=(--disable-mergelibs --without-lto --enable-dbgutil=no)
+  [[ -n "${NOVA_RELEASE_BUILD:-}" ]] && EXTRA+=(--enable-release-build)
+  ./scripts/nova-autogen.sh "${EXTRA[@]}"
   ( cd "$SUBMOD" && ./autogen.sh )
 fi
 
 [[ "$MODE" == "--configure" ]] && { log "configure done. Re-run with --resume to build."; exit 0; }
 
 # --- 4. build --------------------------------------------------------
-JOBS="$(sysctl -n hw.ncpu)"
-log "building with make -j$JOBS … (this is the long part — hours on a first build)"
+log "building with make -j$JOBS … (the long part — hours on a first build)"
+log "if a link step gets OOM-killed, resume with fewer jobs:  PARALLELISM=1 ./scripts/build-macos.sh --resume"
+JOBS="${PARALLELISM:-$JOBS}"
 ( cd "$SUBMOD" && time make -j"$JOBS" )
 
 APP="$(find "$SUBMOD/instdir" -maxdepth 1 -name '*.app' 2>/dev/null | head -1)"
