@@ -15,5 +15,7 @@
     "check:spdx": "node scripts/check-spdx.mjs",
     "check": "npm run check:tokens && node scripts/gen-branding.mjs --check && npm run check:branding && npm run check:spdx && npm test"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=22"
+  }
 }

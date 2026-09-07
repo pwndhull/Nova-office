@@ -5,9 +5,6 @@ on:
   push:
     branches: [main]
   pull_request:
-  workflow_dispatch:      # manual trigger for the best-effort LibreOffice build
-  schedule:
-    - cron: "0 4 * * 1"   # weekly LibreOffice build attempt (Mon 04:00 UTC)
 
 jobs:
   experience-layer:
@@ -15,100 +12,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-
-      - name: Design tokens — build + contrast gate
-        run: node scripts/build-tokens.mjs
-
-      - name: Branding — validate product.yaml + generate
-        run: node scripts/gen-branding.mjs
-
-      - name: No hardcoded branding (TRD Sec 34)
-        run: node scripts/check-no-hardcoded-branding.mjs
-
-      - name: Unit tests
-        run: npm test
-
-      - name: SPDX headers on new source
-        run: node scripts/check-spdx.mjs
+          node-version: "22"
+      - run: node scripts/build-tokens.mjs
+      - run: node scripts/gen-branding.mjs
+      - run: node scripts/check-no-hardcoded-branding.mjs
+      - run: npm test
+      - run: node scripts/check-spdx.mjs
 
   rust-cores:
-    name: Rust cores (nova_sync_core, …)
+    name: Rust cores (nova_sync_core, ycrdt, nova-cli)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
       - run: cargo build --workspace --release
-
-  # LibreOffice-linked build on a free GitHub-hosted runner. This is BEST-EFFORT:
-  # a from-scratch LibreOffice build is ~25-50 GB and 4-6 h on 4 vCPU, which is
-  # at the edge of what ubuntu-latest can do even after reclaiming disk. See
-  # docs/risks.md R-1 and docs/build-linux.md §"CI on free runners".
-  #
-  # Triggered manually (workflow_dispatch) or weekly, NOT on every push, so it
-  # never blocks the fast jobs or burns the whole minute budget. Its result is
-  # informational until it is proven to complete (continue-on-error).
-  nova-build:
-    name: LibreOffice build (best-effort, free runner)
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    timeout-minutes: 350
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-        with: { submodules: recursive }
-
-      - name: Reclaim disk (remove Android/.NET/GHC/etc.)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          large-packages: true
-          swap-storage: false
-
-      - name: Install LibreOffice build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get build-dep -y libreoffice || true
-          sudo apt-get install -y ccache nasm libkrb5-dev libgtk-3-dev python3-dev
-
-      - uses: hendrikmuhs/ccache-action@v1
-        with: { key: libreoffice-nova, max-size: "5G" }
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - name: Bootstrap upstream + generators
-        run: |
-          ./scripts/bootstrap-upstream.sh
-          node scripts/build-tokens.mjs
-          node scripts/gen-branding.mjs
-
-      - name: Configure (Nova compliance-first flags + mergelibs)
-        run: |
-          ./scripts/nova-autogen.sh --enable-mergelibs --disable-cve-tests \
-            --without-doxygen --enable-ccache
-          (cd third_party/libreoffice && ./autogen.sh)
-
-      - name: Build
-        run: make -C third_party/libreoffice build-nocheck
-
-      - name: Upstream + Nova tests
-        run: |
-          make -C third_party/libreoffice unitcheck || true
-          # make -C third_party/libreoffice nova.check   # once nova_* modules exist
-
-      - name: Upload instdir
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nova-office-linux
-          path: third_party/libreoffice/instdir
-          retention-days: 5
-          if-no-files-found: ignore
