@@ -17,6 +17,11 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 */6 * * *" # every 6 h — auto-resume from warm ccache
+  push:
+    branches: [main]
+    paths:
+      - ".github/build-trigger"        # touch this file to kick a build
+      - ".github/workflows/nova-libreoffice-build.yml"
 
 concurrency:
   group: nova-libreoffice-build
