@@ -1,34 +1,37 @@
 <!-- SPDX-License-Identifier: MPL-2.0 -->
 # Nova-Office build status
 
-_The `Nova build (LibreOffice)` workflow overwrites this file after each run._
+_Auto-updated by the `Nova build (LibreOffice)` workflow after each run._
 
 ## CI (fast checks) — ✅ green
 
-- Experience Layer: tokens + contrast gate, branding, no-hardcoded-branding,
-  SPDX, 15 unit tests — passing
-- Rust cores: fmt + clippy `-D warnings` + 34 tests + release build — passing
+Experience Layer + Rust cores pass on every push.
 
-## Full build (LibreOffice) — 🟡 iterating
+## Full build (LibreOffice) — 🟡 compiling
 
-| Run | Result | Fix applied |
-|-----|--------|-------------|
-| #1 | ❌ configure: `unrecognized options: --without-lto` | removed `--without-lto` |
-| #2 | ❌ configure: `gperf not found` (got much further — cups/fontconfig/linker/perl all OK) | added gperf + X11/GL/cairo/dbus/gpgme headers |
-| [#3](https://github.com/pwndhull/Nova-office/actions/runs/34103705160) | 🟡 running | — |
+| Run | Result | Fix |
+|-----|--------|-----|
+| #1 | ❌ `configure: unrecognized options: --without-lto` | removed the flag |
+| #2 | ❌ `configure: gperf not found` | added gperf + X11/GL/cairo/dbus headers |
+| #3 | ✅ **configure passed** → ❌ `make: No rule to make target 'build-nocheck'` | `make build` |
+| #4 | 🟡 first real compile pass (`make build`, cold ccache) | — |
+| #5+ | queued — auto-resume from warm ccache | — |
 
-Clone ✓, Nova patches 0001+0002 apply ✓, generators + branding flags ✓.
-Currently past those; `configure` → `make` is the frontier.
+**`configure` is solved.** Now it's `make build` — a ~10M-line compile.
 
-**Resumable:** 8 GB persistent ccache + cached dependency tarballs → each run
-compiles far more than the last; the cold build needs 2-4 runs. Auto-resumes
-every 6 h and on each push to `.github/build-trigger`.
+### How it finishes on its own
+Each run compiles for up to 320 min then saves its ccache. A run that ends
+incomplete **auto-chains the next run** (`.github/build-trigger`), which resumes
+from the warm ccache and gets much further. This repeats (cap: 20 attempts)
+until `soffice.bin` exists, then the run uploads
+**`nova-office-linux-x86_64.tar.gz`** and flips this file to ✅.
+
+Cold first pass + warm resume ≈ 2–4 chained runs.
 
 **Watch:** <https://github.com/pwndhull/Nova-office/actions/workflows/nova-libreoffice-build.yml>
 
-## What the finished build gives you
+## After it's green
 
-LibreOffice from our pinned source, **branded "Nova-Office"** (name, vendor,
-about box) + the Nova settings tree. The new Nova shell UI (palette, sidebar,
-Notes editor, Nova theming) is `nova_theme` / `nova_shell` — written next, once
-this base build is green.
+LibreOffice from our pinned source, **branded "Nova-Office"** + Nova settings
+tree. The new shell UI (`nova_theme` colours, command palette, sidebar, Notes
+editor) is written next, on top of this base.
