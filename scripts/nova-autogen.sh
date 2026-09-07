@@ -32,14 +32,18 @@ FLAGS="$(awk '
 node scripts/gen-branding.mjs >/dev/null
 BRANDING_FLAGS_FILE="product/generated/nova-configure-flags"
 
-# The Nova settings schema (org.openoffice.Nova) is added to officecfg by
-# patches/0002-*.patch, which expects the files to be present in the submodule.
-mkdir -p "$SUBMOD/officecfg/registry/schema/org/openoffice" \
-         "$SUBMOD/officecfg/registry/data/org/openoffice"
-cp nova/nova_config/registry/schema/org/openoffice/Nova.xcs \
-   "$SUBMOD/officecfg/registry/schema/org/openoffice/Nova.xcs"
-cp nova/nova_config/registry/data/org/openoffice/Nova.xcu \
-   "$SUBMOD/officecfg/registry/data/org/openoffice/Nova.xcu"
+# The Nova settings schema (org.openoffice.Nova) ships via
+# patches/0002-officecfg-add-nova-schema.patch — DEFERRED (.todo) until
+# nova_theme needs it. When re-enabled, this copies Nova.xcs/.xcu into officecfg
+# (canonical source: nova/nova_config/registry/).
+if [[ -f patches/0002-officecfg-add-nova-schema.patch ]]; then
+  mkdir -p "$SUBMOD/officecfg/registry/schema/org/openoffice" \
+           "$SUBMOD/officecfg/registry/data/org/openoffice"
+  cp nova/nova_config/registry/schema/org/openoffice/Nova.xcs \
+     "$SUBMOD/officecfg/registry/schema/org/openoffice/Nova.xcs"
+  cp nova/nova_config/registry/data/org/openoffice/Nova.xcu \
+     "$SUBMOD/officecfg/registry/data/org/openoffice/Nova.xcu"
+fi
 
 OUT="$SUBMOD/autogen.input"
 {

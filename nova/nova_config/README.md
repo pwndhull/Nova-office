@@ -12,8 +12,15 @@ will read.
 |------|------|
 | `registry/schema/org/openoffice/Nova.xcs` | Nova settings schema — `Appearance` (theme, NovaUiMode), `Workspace`, `Sync`, `AI`, `Telemetry`. Additive; touches no upstream node. |
 | `registry/data/org/openoffice/Nova.xcu` | Nova defaults (theme = system, AI = disabled, telemetry = off). |
-| `Module_nova_config.mk` / `Configuration_nova_config.mk` | gbuild wiring. |
 | *(generated)* `product/generated/Nova-Branding.xcu` | overrides `org.openoffice.Setup` → product name / version / vendor, from `product/product.yaml`. |
+
+> The `Nova.xcs` / `Nova.xcu` files here are the **canonical source**.
+> `scripts/nova-autogen.sh` copies them into
+> `third_party/libreoffice/officecfg/registry/` before configure, and
+> `patches/0002-officecfg-add-nova-schema.patch` wires them into LibreOffice's
+> primary `registry` configuration so they ship in the product `.xcd`.
+> There is no standalone `nova_config` gbuild module yet — it returns when
+> `nova_theme` (the first real Nova gbuild Library) lands.
 
 ## Status: **VERIFIED against LibreOffice 25.8 source — patches apply cleanly**
 

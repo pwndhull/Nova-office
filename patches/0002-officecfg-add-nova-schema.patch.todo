@@ -1,0 +1,38 @@
+# Patch: 0002-officecfg-add-nova-schema.patch
+# Why:   LibreOffice has one primary configuration ("registry", built by
+#        officecfg). This adds the additive Nova settings tree
+#        (org.openoffice.Nova — Appearance/Workspace/Sync/AI/Telemetry) to it so
+#        nova_theme / nova_shell can read it via configmgr.
+#        The Nova.xcs/Nova.xcu FILES are placed into officecfg/registry/ by
+#        scripts/nova-autogen.sh (canonical source: nova/nova_config/registry/);
+#        this patch is only the two list entries.
+#        Product NAME / VENDOR are NOT here — those are ./configure flags
+#        (--with-product-name / --with-vendor), injected by nova-autogen.sh.
+# Scope: officecfg/files.mk, officecfg/Configuration_officecfg.mk  (+2 lines)
+# Upstreaming: N/A — Nova-specific configuration.
+# Rebase risk: low.
+#
+diff --git a/officecfg/Configuration_officecfg.mk b/officecfg/Configuration_officecfg.mk
+index 01702a06b3a..9bfeb352dc7 100644
+--- a/officecfg/Configuration_officecfg.mk
++++ b/officecfg/Configuration_officecfg.mk
+@@ -28,6 +28,7 @@ $(eval $(call gb_Configuration_add_datas,registry,officecfg/registry/data,\
+ 	org/openoffice/Inet.xcu \
+ 	org/openoffice/System.xcu \
+ 	org/openoffice/UserProfile.xcu \
++	org/openoffice/Nova.xcu \
+ 	org/openoffice/VCL.xcu \
+ 	org/openoffice/Interaction.xcu \
+ 	org/openoffice/Office/Calc.xcu \
+diff --git a/officecfg/files.mk b/officecfg/files.mk
+index cd5843e2d8c..f027c2d0f44 100644
+--- a/officecfg/files.mk
++++ b/officecfg/files.mk
+@@ -97,6 +97,7 @@ officecfg_XCSFILES := \
+     Office/Views \
+     Office/Writer \
+     Office/WriterWeb \
++    Nova \
+     Setup \
+     System \
+     TypeDetection/Filter \

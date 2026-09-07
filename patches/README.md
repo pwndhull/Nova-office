@@ -21,12 +21,17 @@ and config overlays. A patch here is a debt to repay by upstreaming.
 - A patch that lands upstream is deleted here on the next pin bump.
 - Adding a patch requires an ADR (`docs/adr/`) and an owner review.
 
-## Expected standing patches (when the build lands)
+## Current patches
+
+| Patch | What | Verified |
+|-------|------|----------|
+| `0002-officecfg-add-nova-schema.patch` | Adds `org.openoffice.Nova` (the Nova settings tree) to LibreOffice's primary `registry` configuration (+2 lines in `officecfg` + the `Nova.xcs`/`Nova.xcu` files, which `nova-autogen.sh` copies in) | `git apply --check` ✓; build run #4 got past patch application |
+
+## Expected future patches (when the UI modules land)
 
 | Likely patch | Reason it can't be a `nova/` module |
 |--------------|--------------------------------------|
-| Register `nova_*` in `Repository.mk` / `RepositoryModule_host.mk` | build-graph roots must be in-tree |
-| `configure.ac` `--enable-nova` switch + `NovaTokens.hxx`/branding include paths | configure is in-tree |
-| Optional: a VCL theming/CSD hook if `nova_theme` needs one NWF entry point | to be confirmed against the pinned source (`architecture-analysis.md` §15) |
+| Register `nova_theme` etc. in `Repository.mk` / `RepositoryModule_host.mk` | build-graph roots must be in the LO source tree — `nova-autogen.sh` copies the module dirs in and the patch lists them |
+| `configure.ac` `--enable-nova` switch | configure is in-tree |
 
-Current count: **0**.
+Current count: **1**.
