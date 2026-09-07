@@ -11,13 +11,14 @@ Experience Layer + Rust cores pass on every push.
 
 | Run | Result | Fix |
 |-----|--------|-----|
-| #1 | ❌ `configure: unrecognized options: --without-lto` | removed the flag |
+| #1 | ❌ `configure: --without-lto` unrecognized | removed the flag |
 | #2 | ❌ `configure: gperf not found` | added gperf + X11/GL/cairo/dbus headers |
-| #3 | ✅ **configure passed** → ❌ `make: No rule to make target 'build-nocheck'` | `make build` |
-| #4 | 🟡 first real compile pass (`make build`, cold ccache) | — |
-| #5+ | queued — auto-resume from warm ccache | — |
+| #3 | ✅ **configure passed** → ❌ `make: no target 'build-nocheck'` | `make build` |
+| #4 | ❌ `make`: `Module does not exist: nova_config` (our patch registered a module dir that isn't in the LO tree) | **deferred patches 0001+0002** — the base build needs zero patches; branding is a `./configure` flag |
+| #5 | 🟡 running (still old code — will fail the same way, then auto-chains #6 with the fix) | — |
+| #6+ | zero patches → straight into `make build` | — |
 
-**`configure` is solved.** Now it's `make build` — a ~10M-line compile.
+**`configure` is solved.** `make build` is the ~10M-line compile.
 
 ### How it finishes on its own
 Each run compiles for up to 320 min then saves its ccache. A run that ends
