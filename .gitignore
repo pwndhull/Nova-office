@@ -29,3 +29,4 @@ npm-debug.log*
 .vscode/
 .idea/
 *.swp
+nova/nova_sync/nova_sync_core/Cargo.lock
