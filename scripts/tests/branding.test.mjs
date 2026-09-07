@@ -89,3 +89,11 @@ test("banned-literals list drives the no-hardcoding CI check", () => {
   assert.ok(b.literals.includes("Nova-Office"));
   assert.ok(b.literals.includes("Nova Writer"));
 });
+
+test("no-hardcoded-branding check passes on the current tree (comments exempt)", () => {
+  // Attribution headers ("The Nova-Office contributors") must NOT trip it.
+  const out = execFileSync("node", [join(ROOT, "scripts/check-no-hardcoded-branding.mjs")], {
+    encoding: "utf8",
+  });
+  assert.match(out, /no hardcoded branding/);
+});

@@ -33,6 +33,11 @@ function walk(dir) {
     } else if (CODE_EXT.has(extname(entry))) {
       const text = readFileSync(p, "utf8");
       text.split(/\r?\n/).forEach((line, i) => {
+        // Skip comment lines — attribution headers ("The Nova-Office
+        // contributors") and design notes legitimately name the project.
+        // What TRD §34 forbids is the product name baked into code/config
+        // *values*, which live on non-comment lines.
+        if (/^\s*(\/\/|\/\*|\*|#|<!--|;|--)/.test(line)) return;
         for (const lit of literals) {
           if (line.includes(lit)) hits.push({ file: p.slice(ROOT.length + 1), line: i + 1, lit });
         }
