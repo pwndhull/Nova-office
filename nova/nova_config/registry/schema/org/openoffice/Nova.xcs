@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!-- Nova-Office configuration schema. Additive: does not touch any upstream
+     officecfg node. Nova code reads/writes these via the configmgr
+     (com.sun.star.configuration.ConfigurationProvider), same as all LO settings.
+     Branding values come from a *separate* generated overlay
+     (product/generated/Nova-Branding.xcu) — see docs/rebranding.md. -->
+<oor:component-schema xmlns:oor="http://openoffice.org/2001/registry"
+                      xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      oor:name="Nova" oor:package="org.openoffice" xml:lang="en-US">
+  <templates/>
+  <component>
+
+    <group oor:name="Appearance">
+      <info><desc>Theme + visual mode (docs/design-system.md §7).</desc></info>
+      <prop oor:name="Theme" oor:type="xs:string" oor:nillable="false">
+        <info><desc>light | dark | system | hc</desc></info>
+        <value>system</value>
+      </prop>
+      <prop oor:name="ReducedMotion" oor:type="xs:boolean" oor:nillable="false">
+        <info><desc>Collapse animations (also follows the OS setting).</desc></info>
+        <value>false</value>
+      </prop>
+      <prop oor:name="NovaUiMode" oor:type="xs:boolean" oor:nillable="false">
+        <info><desc>Use the Nova shell (contextual toolbar, sidebar, palette)
+          instead of the classic LibreOffice UI. EXPERIMENTAL until nova_shell lands.</desc></info>
+        <value>false</value>
+      </prop>
+    </group>
+
+    <group oor:name="Workspace">
+      <info><desc>Local workspace (docs/architecture.md §5).</desc></info>
+      <prop oor:name="DefaultPath" oor:type="xs:string" oor:nillable="true">
+        <info><desc>Filesystem path of the active workspace. Empty = prompt on first use.</desc></info>
+        <value></value>
+      </prop>
+      <prop oor:name="IndexOnStartup" oor:type="xs:boolean" oor:nillable="false">
+        <info><desc>Refresh the local search index (FTS5) when the app starts.</desc></info>
+        <value>true</value>
+      </prop>
+    </group>
+
+    <group oor:name="Sync">
+      <info><desc>Optional sync (docs/sync.md). Off unless a provider is set.</desc></info>
+      <prop oor:name="Provider" oor:type="xs:string" oor:nillable="false">
+        <info><desc>none | folder | webdav | novaserver | &lt;plugin id&gt;</desc></info>
+        <value>none</value>
+      </prop>
+      <prop oor:name="ServerUrl" oor:type="xs:string" oor:nillable="true">
+        <info><desc>Base URL when Provider = novaserver. Empty = use the product default (may also be empty).</desc></info>
+        <value></value>
+      </prop>
+      <prop oor:name="OfflineMasterSwitch" oor:type="xs:boolean" oor:nillable="false">
+        <info><desc>Block ALL outbound network for the app (docs/privacy.md §4).</desc></info>
+        <value>false</value>
+      </prop>
+    </group>
+
+    <group oor:name="AI">
+      <info><desc>Optional AI (TRD §20). Disabled by default.</desc></info>
+      <prop oor:name="Provider" oor:type="xs:string" oor:nillable="false">
+        <info><desc>disabled | local | openai-compatible | ollama | &lt;plugin id&gt;</desc></info>
+        <value>disabled</value>
+      </prop>
+      <prop oor:name="Endpoint" oor:type="xs:string" oor:nillable="true">
+        <info><desc>Base URL for openai-compatible / ollama providers.</desc></info>
+        <value></value>
+      </prop>
+      <prop oor:name="SendDocumentContent" oor:type="xs:boolean" oor:nillable="false">
+        <info><desc>Allow AI features to send document text to a remote provider.
+          Must be explicitly enabled (docs/privacy.md §1).</desc></info>
+        <value>false</value>
+      </prop>
+    </group>
+
+    <group oor:name="Telemetry">
+      <info><desc>TRD §19 — off unless explicitly opted in. The generated
+        Nova-Branding overlay may leave the endpoint empty, which also disables it.</desc></info>
+      <prop oor:name="Enabled" oor:type="xs:boolean" oor:nillable="false">
+        <value>false</value>
+      </prop>
+    </group>
+
+  </component>
+</oor:component-schema>

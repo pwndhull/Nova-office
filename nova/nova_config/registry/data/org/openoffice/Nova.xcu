@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!-- Nova-Office default settings (override the schema defaults where wanted).
+     User changes land in the user profile's registrymodifications.xcu, never here. -->
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry"
+                    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                    oor:name="Nova" oor:package="org.openoffice">
+  <node oor:name="Appearance">
+    <prop oor:name="Theme"><value>system</value></prop>
+    <prop oor:name="NovaUiMode"><value>false</value></prop>
+  </node>
+  <node oor:name="Workspace">
+    <prop oor:name="IndexOnStartup"><value>true</value></prop>
+  </node>
+  <node oor:name="Sync">
+    <prop oor:name="Provider"><value>none</value></prop>
+  </node>
+  <node oor:name="AI">
+    <prop oor:name="Provider"><value>disabled</value></prop>
+    <prop oor:name="SendDocumentContent"><value>false</value></prop>
+  </node>
+  <node oor:name="Telemetry">
+    <prop oor:name="Enabled"><value>false</value></prop>
+  </node>
+</oor:component-data>

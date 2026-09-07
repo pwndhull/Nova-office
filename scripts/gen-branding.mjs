@@ -215,4 +215,21 @@ ${entries}
   }, null, 2) + "\n"));
 }
 
+// ---- 9. LibreOffice configure flags for branding ----------------------
+// Verified against the pinned source: the product name/vendor come from
+// ./configure, not a config patch (officecfg/Setup.xcu uses ${PRODUCTNAME}).
+// scripts/nova-autogen.sh appends these.
+{
+  const sh = (s) => `'${String(s).replace(/'/g, "'\\''")}'`;
+  const lines = [
+    `# ${GEN}`,
+    `--with-product-name=${sh(cfg.product.name)}`,
+    `--with-vendor=${sh(cfg.product.vendor)}`,
+  ];
+  const priv = cfg.urls && (cfg.urls.privacy || `${cfg.urls.homepage}/privacy`);
+  if (priv) lines.push(`--with-privacy-policy-url=${sh(priv)}`);
+  if (!String(cfg.product.version).includes("-")) lines.push("--enable-release-build");
+  written.push(write("nova-configure-flags", lines.join("\n") + "\n"));
+}
+
 console.log(`✓ wrote product/generated/: ${written.join(", ")}`);

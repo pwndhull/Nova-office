@@ -49,12 +49,17 @@ identifiers:
 | Output | Consumed by |
 |--------|-------------|
 | `nova_branding.hxx` | C++ — `nova::brand::ProductName()`, `AppName(App::Writer)`, `UpdateUrl()`, ... |
-| `Nova-Branding.xcu` | `configmgr` overlay for `org.openoffice.Setup` (product name/version/vendor) + Nova nodes |
+| **`nova-configure-flags`** | `scripts/nova-autogen.sh` appends these to `autogen.input` — `--with-product-name`, `--with-vendor`, `--with-privacy-policy-url`, `--enable-release-build`. **Verified: this is how LibreOffice sets the product name** (`Setup.xcu` uses `${PRODUCTNAME}`), not a config overlay. |
+| `Nova-Branding.xcu` | optional `configmgr` overlay for anything not covered by a configure flag (currently minimal) |
 | `nova-branding.json` | Nova UI / palette / about box / server |
 | `*.desktop` fragments | Linux app entries (`sysui`) |
 | `Info.plist` fragments | macOS bundle |
 | `version.rc` fragment | Windows resources |
 | `mimetypes.xml` | file type registration |
+
+The **Nova settings tree** (`org.openoffice.Nova`) is separate — it lives in
+[`nova/nova_config/`](../nova/nova_config/) and is added to LibreOffice's config
+by `patches/0002-officecfg-add-nova-schema.patch`.
 
 **Rule:** no source file contains a literal product name, URL, endpoint, bundle
 id, or brand color. CI greps for banned literals (`"Nova-Office"`, `"Nova Writer"`,

@@ -37,6 +37,10 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` pending · `[!]` blocked
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
+| 1.0 | `scripts/build-macos.sh` — one-command macOS LibreOffice build | `[x]` | bootstrap → gen → nova-autogen → make; `--configure` / `--resume` / `--run` |
+| 1.0b | `nova_config` module — Nova settings schema (`Nova.xcs`) + defaults | `[x]` | Appearance/Workspace/Sync/AI/Telemetry. Verified against LO 25.8. |
+| 1.0c | `patches/0001`, `patches/0002` — module + officecfg registration | `[x]` | **real patches, `git apply --check` passes** against pinned source |
+| 1.0d | Branding via `./configure` (`--with-product-name`/`--with-vendor`) | `[x]` | verified in `configure.ac`; `gen-branding.mjs` emits `nova-configure-flags`, `nova-autogen.sh` appends them |
 | 1.1 | `product/product.yaml` — branding/config source of truth | `[x]` | |
 | 1.2 | `product/` schema + generator (`scripts/gen-branding.mjs`) | `[x]` | Emits C++ header, JSON, .desktop, Info.plist fragment. |
 | 1.3 | Nova design tokens — source (`nova/design-tokens/src/*.json`) | `[x]` | colors, typography, spacing, radii, shadows, motion, z-index. |
@@ -99,3 +103,7 @@ All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffic
 - 2026-09-07 — `nova-cli`: first runnable Nova program. `nova` binary — local
   offline-first Notes workspace with offline sync/merge between workspaces via
   checksummed NovaSyncEnvelope. Deterministic document.json. 34 Rust tests green.
+- 2026-09-07 — Stage B (branding/config): read LibreOffice 25.8 source; verified
+  product name = ./configure flag (not a patch). build-macos.sh, nova_config
+  module (Nova.xcs), patches 0001/0002 generated + `git apply --check` verified,
+  branding flags wired through gen-branding → nova-autogen.
