@@ -110,8 +110,9 @@ jobs:
         run: |
           set -o pipefail
           cd third_party/libreoffice
-          # leave ~25 min headroom before the job timeout for cache save + upload
-          timeout 300m make build-nocheck -j4 2>&1 | tail -n 4000 || echo "BUILD_INCOMPLETE=1" >> "$GITHUB_ENV"
+          # `build` = build everything, no tests. `fetch` (external tarballs)
+          # runs first — cached in ~/lo-tarballs. Time-boxed so ccache still saves.
+          timeout 320m make build -j4 2>&1 | tail -n 6000 || echo "BUILD_INCOMPLETE=1" >> "$GITHUB_ENV"
 
       - run: ccache -s
 
