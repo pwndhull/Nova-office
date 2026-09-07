@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: MPL-2.0
+[package]
+name = "nova-cli"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+description = "nova — a local, offline-first Nova Notes workspace you can run today (no LibreOffice, no server). Exercises the real ycrdt + nova_sync_core engines with on-disk persistence."
+repository = "https://github.com/pwndhull/Nova-office"
+publish = false
+
+[[bin]]
+name = "nova"
+path = "src/main.rs"
+
+[dependencies]
+ycrdt = { path = "../nova_notes/ycrdt" }
+nova_sync_core = { path = "../nova_sync/nova_sync_core" }
+clap = { version = "4", features = ["derive"] }

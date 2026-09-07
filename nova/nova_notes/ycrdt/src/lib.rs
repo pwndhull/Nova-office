@@ -26,7 +26,6 @@
 //   the host's call).
 
 use std::collections::HashMap;
-use yrs::types::ToJson;
 use yrs::updates::decoder::Decode;
 use yrs::updates::encoder::Encode;
 use yrs::{
@@ -59,10 +58,13 @@ impl Default for NotesDoc {
 
 impl NotesDoc {
     /// `actor_id` is the Yrs client id — must be unique per device
-    /// (docs/collaboration.md §4). 0 = let yrs pick a random one.
+    /// (docs/collaboration.md §4). 0 = let yrs pick a random one. Any value is
+    /// folded into yrs' valid 53-bit, non-zero client-id range, so callers may
+    /// pass a full hash without tripping yrs' internal assertion.
     pub fn new(actor_id: u64) -> Self {
         let doc = if actor_id != 0 {
-            Doc::with_client_id(actor_id)
+            let cid = (actor_id & ((1u64 << 53) - 1)) | 1;
+            Doc::with_client_id(cid)
         } else {
             Doc::new()
         };
@@ -310,20 +312,24 @@ impl NotesDoc {
         d.apply_update(snapshot).then_some(d)
     }
 
-    /// Stable JSON of the current content — the portable `document.json`
+    /// Deterministic JSON of the current content — the portable `document.json`
     /// written into the .nova package (docs/architecture.md §4.2). Degraded
     /// readers use this when they cannot run the CRDT.
+    ///
+    /// Object keys are emitted in a fixed order and maps are sorted, so two
+    /// replicas that have converged produce **byte-identical** output (needed
+    /// for content-addressing the `.nova` package).
     pub fn to_document_json(&self) -> String {
-        let (meta, props, blocks) = (self.meta(), self.props(), self.blocks_root());
-        let txn = self.doc.transact();
-        // NB: Any::to_json writes from the start of the buffer, so each piece
-        // must be rendered into its own fresh String.
-        format!(
-            "{{\"meta\":{},\"props\":{},\"blocks\":{}}}",
-            any_json(&meta.to_json(&txn)),
-            any_json(&props.to_json(&txn)),
-            any_json(&blocks.to_json(&txn)),
-        )
+        let meta = sorted_string_map(&self.meta(), &self.doc.transact());
+        let props = sorted_string_map(&self.props(), &self.doc.transact());
+        let mut s = String::from("{\"meta\":");
+        json_obj(&meta, &mut s);
+        s.push_str(",\"props\":");
+        json_obj(&props, &mut s);
+        s.push_str(",\"blocks\":");
+        json_blocks(&self.blocks(), &mut s);
+        s.push('}');
+        s
     }
 
     /// Debug helper: a HashMap view of props (unsorted).
@@ -339,10 +345,70 @@ impl NotesDoc {
     }
 }
 
-fn any_json(a: &Any) -> String {
-    let mut s = String::new();
-    a.to_json(&mut s);
-    s
+fn sorted_string_map<T: ReadTxn>(m: &MapRef, txn: &T) -> Vec<(String, String)> {
+    let mut v: Vec<(String, String)> = m
+        .iter(txn)
+        .filter_map(|(k, val)| match val {
+            Out::Any(Any::String(s)) => Some((k.to_string(), s.to_string())),
+            _ => None,
+        })
+        .collect();
+    v.sort();
+    v
+}
+
+fn json_str(s: &str, out: &mut String) {
+    out.push('"');
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+}
+
+fn json_obj(pairs: &[(String, String)], out: &mut String) {
+    out.push('{');
+    for (i, (k, v)) in pairs.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        json_str(k, out);
+        out.push(':');
+        json_str(v, out);
+    }
+    out.push('}');
+}
+
+fn json_blocks(blocks: &[BlockView], out: &mut String) {
+    out.push('[');
+    for (i, b) in blocks.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        // fixed key order: id, kind, text, props, children
+        out.push_str("{\"id\":");
+        json_str(&b.id, out);
+        out.push_str(",\"kind\":");
+        json_str(&b.kind, out);
+        out.push_str(",\"text\":");
+        match &b.text {
+            Some(t) => json_str(t, out),
+            None => out.push_str("null"),
+        }
+        out.push_str(",\"props\":");
+        json_obj(&b.props, out); // already sorted in read_block
+        out.push_str(",\"children\":");
+        json_blocks(&b.children, out);
+        out.push('}');
+    }
+    out.push(']');
 }
 
 #[cfg(test)]
@@ -502,6 +568,33 @@ mod tests {
     fn malformed_update_rejected() {
         let d = NotesDoc::new(1);
         assert!(!d.apply_update(&[0xff, 0xff, 0xff, 0xff]));
+    }
+
+    #[test]
+    fn converged_replicas_produce_identical_document_json() {
+        let a = doc_with_two_blocks(1);
+        let b = NotesDoc::from_snapshot(2, &a.encode_full()).unwrap();
+        a.insert_block(2, "x", "todo");
+        b.insert_block(2, "y", "quote");
+        b.block_text_insert("b1", 5, " (edited)");
+        let a2b = a.encode_diff(&b.state_vector());
+        let b2a = b.encode_diff(&a.state_vector());
+        a.apply_update(&b2a);
+        b.apply_update(&a2b);
+        assert_eq!(a.blocks(), b.blocks());
+        assert_eq!(
+            a.to_document_json(),
+            b.to_document_json(),
+            "document.json must be byte-identical once replicas converge"
+        );
+    }
+
+    #[test]
+    fn actor_id_is_folded_into_valid_range() {
+        // a full-width hash must not trip yrs' 53-bit client-id assertion
+        let d = NotesDoc::new(u64::MAX);
+        d.insert_block(0, "b", "text");
+        assert_eq!(d.blocks().len(), 1);
     }
 
     fn json_balanced(s: &str) -> bool {

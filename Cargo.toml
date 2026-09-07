@@ -6,9 +6,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "nova/nova_sync/nova_sync_core",
-    "nova/nova_notes/ycrdt",
-    # "nova/nova_notes/ycrdt",   # TODO Phase 5 — Y-CRDT wrapper (ADR-0003)
+    "nova/nova_sync/nova_sync_core", # sync wire codec + integrity + backoff (C ABI)
+    "nova/nova_notes/ycrdt",         # Nova Notes block-tree CRDT over yrs (C ABI)
+    "nova/nova_cli",                 # `nova` — runnable local offline-first Notes workspace
 ]
 
 [workspace.package]

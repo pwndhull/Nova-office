@@ -44,7 +44,8 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` pending · `[!]` blocked
 | 1.5 | `scripts/bootstrap-upstream.sh` — clone/pin LibreOffice | `[x]` | Submodule wiring + fallback shallow clone. |
 | 1.10 | `nova_sync_core` (Rust): NovaSyncEnvelope codec + integrity + backoff + C ABI | `[x]` | 18 tests, clippy `-D warnings` + rustfmt clean, staticlib builds. Ed25519 signing + zstd = NOT IMPLEMENTED (tracked). |
 | 1.11 | Cargo workspace + Rust CI job (fmt/clippy/test/build) | `[x]` | |
-| 5.1 | `ycrdt` (Rust): Nova Notes block-tree CRDT over `yrs` + C ABI (`ycrdt.h`) | `[x]` | 13 tests incl. concurrent-insert/text-merge convergence + root-type merge + snapshot roundtrip. Rich-text marks, `.nova` package, backlink graph, GC policy = NOT IMPLEMENTED (host/later). |
+| 5.1 | `ycrdt` (Rust): Nova Notes block-tree CRDT over `yrs` + C ABI (`ycrdt.h`) | `[x]` | 15 tests incl. concurrent-insert/text-merge convergence, root-type merge, snapshot roundtrip, byte-identical `document.json` after convergence. Rich-text marks, `.nova` package, backlink graph, GC policy = NOT IMPLEMENTED. |
+| 5.2 | `nova-cli` (`nova` binary): runnable local offline-first Notes workspace | `[x]` | init / page / block / **sync** (offline merge via checksummed NovaSyncEnvelope) / log. On-disk workspace per docs/architecture.md §5.1. e2e integration test. First runnable Nova program. |
 | 1.6 | Application shell (VCL-level) | `[ ]` | NOT IMPLEMENTED — requires LO build environment. Design in `docs/architecture.md` §Shell. |
 | 1.7 | Command palette component | `[ ]` | NOT IMPLEMENTED — spec in `docs/design-system.md` + `docs/architecture.md`. |
 | 1.8 | Sidebar / tabs / file browser | `[ ]` | NOT IMPLEMENTED — spec only. |
@@ -95,3 +96,6 @@ All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffic
   (ADR-0006). product.yaml de-exampled.
 - 2026-09-07 — Phase 5 groundwork: `ycrdt` crate — Nova Notes block-tree CRDT
   over yrs, C ABI, 13 tests proving convergence. Workspace profiles tidied.
+- 2026-09-07 — `nova-cli`: first runnable Nova program. `nova` binary — local
+  offline-first Notes workspace with offline sync/merge between workspaces via
+  checksummed NovaSyncEnvelope. Deterministic document.json. 34 Rust tests green.

@@ -29,26 +29,52 @@ management (Nova Notes), and optional, provider-neutral online collaboration.
 ## Repository layout
 
 ```
-docs/                 Architecture, design system, licensing, plans (Phase 0)
-product/              Rebranding config layer — product.yaml is the source of truth
-nova/design-tokens/   Token source + multi-target build (CSS/JSON/Sass/C++)
-scripts/              Bootstrap upstream, code generators, token build
-third_party/          LibreOffice submodule mount point (populated by bootstrap)
-TASKS.md              Live task tracker
-TRD_PRD.md            Original product/technical requirements
+docs/                    Architecture, design system, licensing, plans (Phase 0)
+product/                 Rebranding config layer — product.yaml is the source of truth
+nova/design-tokens/      Token source + multi-target build (CSS/JSON/Sass/C++)
+nova/nova_sync/…core/    Rust: NovaSyncEnvelope codec + integrity + backoff (C ABI)
+nova/nova_notes/ycrdt/   Rust: Nova Notes block-tree CRDT over yrs (C ABI)
+nova/nova_cli/           Rust: `nova` — runnable local offline-first Notes workspace
+scripts/                 Bootstrap upstream, code generators, token build
+third_party/             LibreOffice submodule mount point (populated by bootstrap)
+TASKS.md                 Live task tracker
+TRD_PRD.md               Original product/technical requirements
 ```
 
-## Getting started
+## Run something today (no LibreOffice needed)
 
 ```bash
-# 1. Fetch the pinned LibreOffice upstream (large; see docs/build-linux.md first)
-./scripts/bootstrap-upstream.sh
+cargo run -p ycrdt --example demo          # offline CRDT convergence, in ~1s
 
-# 2. Build the design tokens
-node scripts/build-tokens.mjs
+# a real local Notes workspace — two "devices" edit offline, then sync:
+cargo build --release -p nova-cli
+NOVA=target/release/nova
+$NOVA --workspace /tmp/laptop init
+PID=$($NOVA --workspace /tmp/laptop page new "Trip plan")
+$NOVA --workspace /tmp/laptop block add $PID todo "Passport"
+cp -r /tmp/laptop /tmp/phone
+$NOVA --workspace /tmp/laptop block add $PID todo "Sunscreen"
+$NOVA --workspace /tmp/phone  block add $PID todo "Adapter"
+$NOVA --workspace /tmp/laptop sync $PID --from /tmp/phone   # merged, integrity ok, converged
+$NOVA --workspace /tmp/laptop page show $PID
+```
 
-# 3. Generate branding artifacts from product/product.yaml
-node scripts/gen-branding.mjs
+See [`nova/nova_cli/README.md`](nova/nova_cli/README.md). This is a dev/demo
+tool — the Writer/Sheets/Slides apps and the Notes editor UI still need the
+LibreOffice build.
+
+```bash
+npm test && npm run check                  # design-token + branding tooling (Node ≥ 20)
+cargo test --workspace                      # all engine + CLI tests
+```
+
+## Building the full suite
+
+```bash
+./scripts/bootstrap-upstream.sh            # fetch pinned LibreOffice (large)
+node scripts/build-tokens.mjs              # design tokens → nova/design-tokens/dist
+node scripts/gen-branding.mjs              # product.yaml → product/generated
+# then: docs/build-{linux,macos,windows}.md
 ```
 
 Full build instructions: [`docs/build-linux.md`](docs/build-linux.md),
