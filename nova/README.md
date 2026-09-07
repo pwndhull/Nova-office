@@ -20,7 +20,8 @@ LibreOffice submodule with no invasive core edits (ADR-0001,
 | `nova_workspace` | Workspace model + SQLite store + scanner | NOT IMPLEMENTED |
 | `nova_search` | FTS5 index + query service + extractors | NOT IMPLEMENTED |
 | `nova_versioning` | Snapshot store, commit graph, diff | NOT IMPLEMENTED |
-| `nova_sync` (+ `nova_sync_core/` Rust) | Offline queue + sync engine + providers | NOT IMPLEMENTED |
+| `nova_sync` | Offline queue + sync engine + providers (C++) | NOT IMPLEMENTED |
+| `nova_sync/nova_sync_core/` (Rust) | Envelope codec, SHA-256 integrity, backoff + C ABI | **implemented** (18 tests, clippy/fmt clean, standalone) |
 | `nova_collab` | CollabController + provider interfaces + LOK session | NOT IMPLEMENTED |
 | `nova_notes` (+ `ycrdt/` Rust) | Notes model, `.nova` filter, editor widget | NOT IMPLEMENTED |
 | `nova_ai` | Provider interface + built-in providers (off by default) | NOT IMPLEMENTED |

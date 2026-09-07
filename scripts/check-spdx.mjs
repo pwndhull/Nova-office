@@ -11,10 +11,10 @@ import { extname } from "node:path";
 
 const ROOT = process.cwd();
 const INCLUDE = /^(nova|scripts|product|docs|tests|nova-server|\.github)\//;
-const EXEMPT = /(^third_party\/|\/generated\/|\/dist\/|\/node_modules\/|\.gitkeep$|branding\/icons\/)/;
+const EXEMPT = /(^third_party\/|\/generated\/|\/dist\/|\/target\/|\/node_modules\/|\.gitkeep$|branding\/icons\/|Cargo\.lock$)/;
 const NEEDS = new Set([
   ".mjs", ".js", ".ts", ".cxx", ".cpp", ".c", ".hxx", ".hpp", ".h", ".rs",
-  ".py", ".sh", ".md", ".json", ".yml", ".yaml", ".xcu", ".xcs", ".svg",
+  ".py", ".sh", ".md", ".json", ".yml", ".yaml", ".xcu", ".xcs", ".svg", ".toml",
 ]);
 
 const files = execSync("git ls-files", { encoding: "utf8" })

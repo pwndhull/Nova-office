@@ -95,6 +95,21 @@ an ADR.
 | Full-text search | **SQLite FTS5** (built-in) | Public Domain | Offline unified search (TRD §27) with zero extra deps. Upgrade path: a dedicated index only if FTS5 proves insufficient. |
 | Optional vector search (AI) | **sqlite-vec** *(deferred / EXPERIMENTAL)* | MIT/Apache-2.0 | semantic search; only if AI enabled |
 
+### B.2a `nova_sync_core` (Rust) — actual crate tree (locked)
+
+`nova/nova_sync/nova_sync_core` — envelope codec, integrity, backoff. All
+transitive deps are permissive (verified via `cargo metadata`):
+
+| Crate | License | Role |
+|-------|---------|------|
+| `sha2`, `digest`, `block-buffer`, `crypto-common`, `generic-array`, `typenum`, `cpufeatures`, `cfg-if` | MIT OR Apache-2.0 (generic-array: MIT) | SHA-256 |
+| `serde`, `serde_core`, `serde_derive`, `serde_json` | MIT OR Apache-2.0 | header JSON |
+| `itoa`, `memchr`, `zmij` | MIT / (Unlicense OR MIT) / MIT | serde_json internals |
+| `proc-macro2`, `quote`, `syn`, `unicode-ident`, `version_check` | MIT OR Apache-2.0 (unicode-ident also Unicode-3.0) | build-time macros |
+
+No copyleft. `Cargo.lock` is committed. CI runs `cargo audit` (planned) +
+`cargo clippy -D warnings` + `cargo fmt --check`.
+
 ### B.3 Collaboration (client-side)
 | Component | Choice | License | Rationale — see `collaboration-evaluation.md` |
 |-----------|--------|---------|------------------|

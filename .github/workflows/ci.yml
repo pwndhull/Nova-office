@@ -32,6 +32,19 @@ jobs:
       - name: SPDX headers on new source
         run: node scripts/check-spdx.mjs
 
+  rust-cores:
+    name: Rust cores (nova_sync_core, …)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+      - run: cargo build --workspace --release
+
   # Placeholder for the LibreOffice-linked build. Requires a large self-hosted
   # runner (16 core / 32 GB / 100 GB). NOT ENABLED until a build host exists
   # (docs/risks.md R-1).

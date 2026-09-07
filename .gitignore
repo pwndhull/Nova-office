@@ -15,6 +15,10 @@
 # Generated branding artifacts (regenerated from product/product.yaml)
 /product/generated/
 
+# Rust (Cargo.lock IS committed for the workspace's crates)
+target/
+**/*.rs.bk
+
 # Node
 node_modules/
 npm-debug.log*

@@ -42,6 +42,8 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` pending · `[!]` blocked
 | 1.3 | Nova design tokens — source (`nova/design-tokens/src/*.json`) | `[x]` | colors, typography, spacing, radii, shadows, motion, z-index. |
 | 1.4 | Design-token build → CSS vars / JSON / C++ / Sass | `[x]` | `scripts/build-tokens.mjs`, tests. |
 | 1.5 | `scripts/bootstrap-upstream.sh` — clone/pin LibreOffice | `[x]` | Submodule wiring + fallback shallow clone. |
+| 1.10 | `nova_sync_core` (Rust): NovaSyncEnvelope codec + integrity + backoff + C ABI | `[x]` | 18 tests, clippy `-D warnings` + rustfmt clean, staticlib builds. Ed25519 signing + zstd = NOT IMPLEMENTED (tracked). |
+| 1.11 | Cargo workspace + Rust CI job (fmt/clippy/test/build) | `[x]` | |
 | 1.6 | Application shell (VCL-level) | `[ ]` | NOT IMPLEMENTED — requires LO build environment. Design in `docs/architecture.md` §Shell. |
 | 1.7 | Command palette component | `[ ]` | NOT IMPLEMENTED — spec in `docs/design-system.md` + `docs/architecture.md`. |
 | 1.8 | Sidebar / tabs / file browser | `[ ]` | NOT IMPLEMENTED — spec only. |
@@ -75,3 +77,5 @@ All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffic
   ADRs 0001-0005, SECURITY.md, docs index, nova/ tests/ nova-server/ READMEs.
 - 2026-09-07 — nova-autogen.sh + apply-patches.sh + patches/README;
   requirements-traceability.md (all TRD Sec 1-48). PHASE 0 COMPLETE.
+- 2026-09-07 — Phase 1: nova_sync_core Rust crate (envelope wire codec, SHA-256
+  integrity, full-jitter backoff, C ABI + header); Cargo workspace; Rust CI job.
