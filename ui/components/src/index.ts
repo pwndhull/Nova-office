@@ -80,6 +80,10 @@ export {
 
 export { Kbd, type KbdProps } from './primitives/Kbd';
 
+export { Checkbox, type CheckboxProps } from './primitives/Checkbox';
+
+export { Switch, type SwitchProps } from './primitives/Switch';
+
 // --- components -------------------------------------------------------------
 export {
   Toolbar,
@@ -99,6 +103,8 @@ export {
 } from './components/Menu';
 
 export { Dialog, type DialogProps } from './components/Dialog';
+
+export { Select, type SelectProps, type SelectOption } from './components/Select';
 
 export {
   fuzzyMatch,

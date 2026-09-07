@@ -10,12 +10,12 @@ Two tracks run in parallel:
 > **Status accuracy (2026-09-04, nova-office-dc).** Several ✅ marks below in
 > Phases 4–12 were written ahead of the code and do not match the tree. What is
 > actually implemented today: `@nova/tokens` (4 modes, 123 contrast assertions),
-> `@nova/motion`, `@nova/icons`, `@nova/tests`, and in `@nova/components` only
-> **Button/IconButton, Input/Field/SearchInput, Kbd, Toolbar, Menu, Dialog,
-> CommandPalette** plus the `foundations/` hooks. Sidebar, Inspector, File
-> browser, Color picker, Font picker, Select, Toggle, Settings, the Workspace,
-> and the Writer/Calc/Impress scenes are **not built**. `ui/playground` now
-> exists (533d5c4). Rows are being corrected by their owning session; see
+> `@nova/motion`, `@nova/icons`, `@nova/tests`, and in `@nova/components`
+> **Button/IconButton, Input/Field/SearchInput, Kbd, Checkbox, Switch, Toolbar,
+> Menu, Dialog, Select, CommandPalette** plus the `foundations/` hooks. Sidebar,
+> Inspector, File browser, Color picker, Font picker, Settings, the Workspace,
+> and the Writer/Calc/Impress scenes are **not built**. `ui/playground` exists
+> (533d5c4). Rows are being corrected by their owning session; see
 > [COORDINATION.md](COORDINATION.md).
 
 ---
@@ -63,8 +63,8 @@ Two tracks run in parallel:
 | Toolbar / floating toolbar | ✅ | `components/Toolbar.tsx` — ARIA toolbar, one Tab stop |
 | Menu / ContextMenu | ✅ | `components/Menu.tsx` — roving focus, type-ahead, focus restore |
 | Dialog / Sheet | ✅ | `components/Dialog.tsx` — focus trap, scroll lock, scrim |
-| Checkbox / Switch | ⏳ | not built |
-| Select | ⏳ | not built |
+| Checkbox / Switch | ✅ | `primitives/Checkbox.tsx` (native input + `:indeterminate`), `primitives/Switch.tsx` (`role="switch"`) |
+| Select | ✅ | `components/Select.tsx` — ARIA listbox, roving focus, type-ahead (open or closed), optional hidden input for forms |
 | Sidebar (collapsible, resizable) | ⏳ | not built |
 | Inspector panel | ⏳ | not built |
 | File browser | ⏳ | not built |
@@ -114,7 +114,7 @@ Replaces the Start Center. **Nothing built yet** — see
 | Item | Status | Notes |
 |------|--------|-------|
 | `ui/tokens`, `ui/motion`, `ui/icons`, `ui/components` structure | ✅ | four published workspaces |
-| Tests | ✅ | 238 across the tree (tokens 123, motion 31, icons 36, components 48) |
+| Tests | ✅ | 260 across the packages (tokens 123, motion 31, icons 36, components 70) + 26 cross-package in `@nova/tests` |
 | Per-component docs + a11y notes | 🚧 | `ui/tokens`, `ui/motion`, `ui/icons` have READMEs; `ui/components` has file-header docs but no per-component README |
 | `ui/playground` component explorer | ✅ | Seven scenes (Overview, Color, Typography, Space & materials, Motion, Components, Icons); renders the real packages aliased to source — 533d5c4 |
 

@@ -26,7 +26,11 @@
 .nova-button:focus-visible,
 .nova-input:focus-visible,
 .nova-menu-item:focus-visible,
-.nova-toolbar-item:focus-visible {
+.nova-toolbar-item:focus-visible,
+.nova-checkbox__input:focus-visible,
+.nova-switch__input:focus-visible,
+.nova-select__trigger:focus-visible,
+.nova-select__option:focus-visible {
   outline: 2px solid var(--nova-border-focus);
   outline-offset: 2px;
 }
@@ -710,6 +714,335 @@
 }
 
 /* ============================================================
+   Checkbox
+   ============================================================ */
+
+.nova-checkbox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nova-size-1);
+}
+
+.nova-checkbox__row {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-2);
+  cursor: pointer;
+}
+
+.nova-checkbox__control {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  width: var(--nova-size-5);
+  height: var(--nova-size-5);
+}
+
+/**
+ * The input *is* the box — `appearance: none` and styled directly, so the
+ * space-bar toggle, :checked / :indeterminate state and label association stay
+ * native. The two marks are stacked on top of it and switched by CSS.
+ */
+.nova-checkbox__input {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+
+  background: var(--nova-bg-surface-sunken);
+  border: 1px solid var(--nova-border-control);
+  border-radius: var(--nova-radius-sm);
+
+  cursor: pointer;
+  transition: var(--nova-motion-transition-control);
+  transition-property: background-color, border-color;
+}
+
+.nova-checkbox__row:hover .nova-checkbox__input:not(:disabled) {
+  border-color: var(--nova-border-strong);
+}
+
+.nova-checkbox__input:checked,
+.nova-checkbox__input:indeterminate {
+  background: var(--nova-accent-default);
+  border-color: var(--nova-accent-default);
+}
+
+.nova-checkbox__input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nova-checkbox__mark {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  color: var(--nova-text-on-accent);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.nova-checkbox__input:checked ~ .nova-checkbox__mark--check,
+.nova-checkbox__input:indeterminate ~ .nova-checkbox__mark--mixed {
+  opacity: 1;
+}
+
+/* Indeterminate wins over checked: show only the dash. */
+.nova-checkbox__input:indeterminate ~ .nova-checkbox__mark--check {
+  opacity: 0;
+}
+
+.nova-checkbox__label {
+  font-size: var(--nova-type-body-font-size);
+  color: var(--nova-text-primary);
+}
+
+.nova-checkbox__input:disabled ~ .nova-checkbox__mark {
+  opacity: inherit;
+}
+
+.nova-checkbox__row:has(.nova-checkbox__input:disabled) {
+  cursor: not-allowed;
+}
+.nova-checkbox__row:has(.nova-checkbox__input:disabled) .nova-checkbox__label {
+  color: var(--nova-text-disabled);
+}
+
+.nova-checkbox__hint {
+  margin-inline-start: calc(var(--nova-size-5) + var(--nova-size-2));
+  font-size: var(--nova-type-caption-font-size);
+  color: var(--nova-text-tertiary);
+}
+
+/* ============================================================
+   Switch
+   ============================================================ */
+
+.nova-switch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nova-size-1);
+}
+
+.nova-switch__row {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-2-5);
+  cursor: pointer;
+}
+
+.nova-switch--label-end .nova-switch__row {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.nova-switch__label {
+  flex: 1;
+  font-size: var(--nova-type-body-font-size);
+  color: var(--nova-text-primary);
+}
+
+.nova-switch__track {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  width: var(--nova-size-8);
+  height: var(--nova-size-5);
+}
+
+.nova-switch__input {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+
+  background: var(--nova-bg-active);
+  border: 1px solid var(--nova-border-control);
+  border-radius: var(--nova-radius-full);
+
+  cursor: pointer;
+  transition: var(--nova-motion-transition-control);
+  transition-property: background-color, border-color;
+}
+
+.nova-switch__input:checked {
+  background: var(--nova-accent-default);
+  border-color: var(--nova-accent-default);
+}
+
+.nova-switch__input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/**
+ * The thumb is a sibling, not a pseudo-element, so it is unaffected by the
+ * input's `appearance: none`. It reads the checked state through the adjacent
+ * selector and slides — a transform, so reduced motion drops the travel but the
+ * colour change stays.
+ */
+.nova-switch__thumb {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: var(--nova-size-0-5);
+  width: var(--nova-size-4);
+  height: var(--nova-size-4);
+  transform: translateY(-50%);
+
+  background: var(--nova-bg-surface-raised);
+  border-radius: var(--nova-radius-full);
+  box-shadow: var(--nova-elevation-resting);
+  pointer-events: none;
+  transition: var(--nova-motion-transition-control);
+  transition-property: translate;
+}
+
+.nova-switch__input:checked ~ .nova-switch__thumb {
+  translate: calc(var(--nova-size-8) - var(--nova-size-4) - var(--nova-size-1)) 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nova-switch__thumb {
+    transition: none;
+  }
+}
+
+.nova-switch__hint {
+  font-size: var(--nova-type-caption-font-size);
+  color: var(--nova-text-tertiary);
+}
+
+/* ============================================================
+   Select
+   ============================================================ */
+
+.nova-select {
+  position: relative;
+  display: inline-block;
+  min-width: var(--nova-size-32);
+}
+
+.nova-select__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-2);
+  width: 100%;
+  height: var(--nova-size-8);
+  padding-inline: var(--nova-size-3);
+
+  background: var(--nova-bg-surface-sunken);
+  color: var(--nova-text-primary);
+  border: 1px solid var(--nova-border-control);
+  border-radius: var(--nova-radius-md);
+
+  font-family: var(--nova-type-body-font-family);
+  font-size: var(--nova-type-body-font-size);
+  text-align: start;
+  cursor: pointer;
+  transition: var(--nova-motion-transition-hover);
+  transition-property: border-color, background-color;
+}
+
+.nova-select__trigger:hover:not(:disabled) {
+  border-color: var(--nova-border-strong);
+}
+
+.nova-select__trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nova-select__trigger[aria-invalid='true'] {
+  border-color: var(--nova-status-danger-fg);
+}
+
+.nova-select__value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nova-select__value--placeholder {
+  color: var(--nova-text-tertiary);
+}
+
+.nova-select__chevron {
+  flex: none;
+  color: var(--nova-text-tertiary);
+}
+
+.nova-select__list {
+  position: absolute;
+  z-index: var(--nova-zindex-dropdown);
+  top: calc(100% + var(--nova-size-1));
+  inset-inline-start: 0;
+  min-width: 100%;
+  max-height: min(50vh, 320px);
+  padding: var(--nova-size-1-5);
+  overflow-y: auto;
+
+  border: 1px solid var(--nova-border-default);
+  border-radius: var(--nova-radius-lg);
+  box-shadow: var(--nova-elevation-floating);
+}
+
+.nova-select__list[data-align='end'] {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+.nova-select__option {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-size-2-5);
+  width: 100%;
+  padding: var(--nova-size-1-5) var(--nova-size-2-5);
+
+  border-radius: var(--nova-radius-sm);
+  color: var(--nova-text-primary);
+  font-size: var(--nova-type-body-font-size);
+  cursor: pointer;
+}
+
+.nova-select__option:hover:not([aria-disabled='true']),
+.nova-select__option[data-active]:not([aria-disabled='true']) {
+  background: var(--nova-bg-hover);
+}
+
+.nova-select__option[aria-selected='true'] {
+  color: var(--nova-text-accent);
+  font-weight: var(--nova-font-weight-medium);
+}
+
+.nova-select__option[aria-disabled='true'] {
+  color: var(--nova-text-disabled);
+  cursor: not-allowed;
+}
+
+.nova-select__option-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nova-select__list[data-state='entering'],
+.nova-select__list[data-state='exiting'] {
+  opacity: 0;
+  transform: translateY(calc(-1 * var(--nova-motion-distance-nudge)));
+}
+.nova-select__list {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--nova-motion-transition-overlay),
+    transform var(--nova-motion-transition-overlay);
+}
+
+/* ============================================================
    Scrollbars
    ============================================================ */
 
@@ -755,16 +1088,34 @@
   .nova-surface,
   .nova-menu,
   .nova-dialog,
-  .nova-palette {
+  .nova-palette,
+  .nova-checkbox__input,
+  .nova-switch__input,
+  .nova-select__trigger,
+  .nova-select__list {
     border: 1px solid CanvasText;
   }
 
   .nova-toolbar-item[aria-pressed='true'],
   .nova-sidebar__item[aria-current='page'],
   .nova-sidebar__item[data-selected='true'],
-  .nova-menu-item[data-active] {
+  .nova-menu-item[data-active],
+  .nova-select__option[data-active] {
     border: 2px solid Highlight;
     /* forced-colors discards backgrounds, so the state must not depend on one. */
+  }
+
+  /* :checked backgrounds are dropped by forced-colors; the marks carry the
+     state instead, so keep them visible and let the box show a Highlight fill. */
+  .nova-checkbox__input:checked,
+  .nova-switch__input:checked {
+    background: Highlight;
+  }
+  .nova-checkbox__mark {
+    color: HighlightText;
+  }
+  .nova-select__option[aria-selected='true'] {
+    border-inline-start: 2px solid Highlight;
   }
 
   .nova-focusable:focus-visible,

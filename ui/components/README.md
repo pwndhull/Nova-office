@@ -10,8 +10,8 @@ The import graph only ever points downward.
 | Layer          | Path            | What lives here |
 |----------------|-----------------|-----------------|
 | `foundations/` | headless hooks  | focus (`useFocusTrap`, `useRovingFocus`), overlay (`useDismiss`, `useScrollLock`), keyboard (shortcut parse/match/format), `announce`, `Portal`, `ThemeProvider` |
-| `primitives/`  | styled elements | `Button` / `IconButton`, `Input` / `Field` / `SearchInput`, `Kbd` |
-| `components/`  | composed widgets| `Toolbar`, `Menu`, `Dialog`, `CommandPalette`, `fuzzy` ranking |
+| `primitives/`  | styled elements | `Button` / `IconButton`, `Input` / `Field` / `SearchInput`, `Kbd`, `Checkbox`, `Switch` |
+| `components/`  | composed widgets| `Toolbar`, `Menu`, `Dialog`, `Select`, `CommandPalette`, `fuzzy` ranking |
 
 ## Principles
 
@@ -50,6 +50,7 @@ Run `npm test --workspace @nova/components`.
 
 ## Status
 
-Foundations, primitives, and the first four composed components are landed and
-tested (48 tests). Remaining Phase 4 components — Sidebar, Inspector, FileBrowser,
-Select, Toggle, ColorPicker, FontPicker — are tracked in [`ROADMAP.md`](../../ROADMAP.md).
+Foundations, primitives (including `Checkbox` and `Switch`), and the composed
+`Toolbar`, `Menu`, `Dialog`, `Select` and `CommandPalette` are landed and tested
+(70 tests). Remaining Phase 4 components — Sidebar, Inspector, FileBrowser,
+ColorPicker, FontPicker, MenuBar — are tracked in [`ROADMAP.md`](../../ROADMAP.md).
