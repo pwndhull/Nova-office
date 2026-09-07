@@ -13,8 +13,9 @@ _The `Nova build (LibreOffice)` workflow overwrites this file after each run._
 
 | Run | Result | Fix applied |
 |-----|--------|-------------|
-| [#1](https://github.com/pwndhull/Nova-office/actions/runs/34102759305) | ❌ configure: `unrecognized options: --without-lto` | removed `--without-lto` (LTO is off by default) |
-| [#2](https://github.com/pwndhull/Nova-office/actions/runs/34103239791) | 🟡 running | — |
+| #1 | ❌ configure: `unrecognized options: --without-lto` | removed `--without-lto` |
+| #2 | ❌ configure: `gperf not found` (got much further — cups/fontconfig/linker/perl all OK) | added gperf + X11/GL/cairo/dbus/gpgme headers |
+| [#3](https://github.com/pwndhull/Nova-office/actions/runs/34103705160) | 🟡 running | — |
 
 Clone ✓, Nova patches 0001+0002 apply ✓, generators + branding flags ✓.
 Currently past those; `configure` → `make` is the frontier.
