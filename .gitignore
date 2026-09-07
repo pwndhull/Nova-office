@@ -15,9 +15,10 @@
 # Generated branding artifacts (regenerated from product/product.yaml)
 /product/generated/
 
-# Rust (Cargo.lock IS committed for the workspace's crates)
+# Rust — the root workspace Cargo.lock IS committed; per-crate locks are not
 target/
 **/*.rs.bk
+nova/**/Cargo.lock
 
 # Node
 node_modules/
@@ -29,4 +30,3 @@ npm-debug.log*
 .vscode/
 .idea/
 *.swp
-nova/nova_sync/nova_sync_core/Cargo.lock
