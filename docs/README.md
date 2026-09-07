@@ -35,6 +35,8 @@
 - ADR-0003 — Yrs (Y-CRDT) for Notes/metadata; hybrid for Office docs
 - ADR-0004 — SQLite + FTS5 for Nova metadata & search
 - ADR-0005 — VCL, not a web runtime, for the shell and editors
+- ADR-0006 — Rust for the reference server (shares the client CRDT)
+- ADR-0007 — `nova_theme` applies the design tokens via a startup UNO Job
 
 ## Still to write (later phases)
 
