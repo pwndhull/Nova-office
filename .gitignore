@@ -1,0 +1,27 @@
+# Upstream (fetched by scripts/bootstrap-upstream.sh; huge)
+/third_party/libreoffice/
+!/third_party/.gitkeep
+
+# Build output
+/nova/design-tokens/dist/
+/build/
+/workdir/
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+
+# Generated branding artifacts (regenerated from product/product.yaml)
+/product/generated/
+
+# Node
+node_modules/
+npm-debug.log*
+.pnpm-store/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
