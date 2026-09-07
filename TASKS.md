@@ -55,6 +55,14 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` pending · `[!]` blocked
 | 1.8 | Sidebar / tabs / file browser | `[ ]` | NOT IMPLEMENTED — spec only. |
 | 1.9 | Theme runtime (Light/Dark/System/High-Contrast) | `[~]` | Tokens + theme JSON done; VCL wiring pending build env. |
 
+## CI / build automation
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| CI.1 | `CI` workflow — Experience Layer + Rust cores | `[x]` | **green** (Node 22 fixes the `--test` glob). Runs on every push. |
+| CI.2 | `Nova build (LibreOffice)` workflow — full build on free runner | `[~]` | Resumable (8G ccache + tarball cache); every-6h schedule + `.github/build-trigger`. First run 2026-09-07. Commits `BUILD_STATUS.md` back each run. |
+| CI.3 | `BUILD_STATUS.md` — live build tracker | `[x]` | auto-updated by the build workflow |
+
 ## Phase 2+ — see docs/roadmap.md and docs/MASTER_IMPLEMENTATION_PLAN.md
 
 All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffice build.
@@ -107,3 +115,6 @@ All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffic
   product name = ./configure flag (not a patch). build-macos.sh, nova_config
   module (Nova.xcs), patches 0001/0002 generated + `git apply --check` verified,
   branding flags wired through gen-branding → nova-autogen.
+- 2026-09-07 — CI green (Node 22). New `Nova build (LibreOffice)` workflow —
+  resumable full build on the free runner, self-updates BUILD_STATUS.md. First
+  run started. bootstrap-upstream fixed (plain shallow clone, no submodule).
