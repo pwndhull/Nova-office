@@ -20,7 +20,7 @@ the pinned source tree once `scripts/bootstrap-upstream.sh` has run is tagged
 |------|-------|
 | Upstream | The Document Foundation — `https://git.libreoffice.org/core` |
 | Mirror | `https://github.com/LibreOffice/core` |
-| Pin target | Latest **stable release tag** on the current `libreoffice-*` branch — resolved and recorded by `scripts/bootstrap-upstream.sh` into `third_party/UPSTREAM_PIN` **`[VERIFY]`** |
+| Pin target | `libreoffice-25.8.7.3` (LibreOffice 25.8.x, latest stable tag resolved 2026-09-07) — recorded in `third_party/UPSTREAM_PIN`; `scripts/bootstrap-upstream.sh` fetches it and fills in the commit hash **`[VERIFY]` after bootstrap** |
 | Primary language | C++17 (moving toward C++20) **`[VERIFY]`** compiler baseline |
 | Lines of code | ~10 million (C/C++), plus large amounts of generated/config XML |
 | Build | Custom `gbuild` (GNU make) + Autoconf `configure` |

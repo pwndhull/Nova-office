@@ -1,0 +1,76 @@
+# Nova-Office — product identity & configuration
+# SINGLE SOURCE OF TRUTH for all branding (TRD Sec 34, 35).
+# Edit this file + swap product/branding/ assets, then run:
+#   node scripts/gen-branding.mjs
+# No product name, URL, endpoint, bundle id, or brand color may be hardcoded
+# anywhere else in the source tree (CI enforces this).
+#
+# Format: a YAML subset (see scripts/lib/yaml-mini.mjs). Validated against
+# product/schema/product.schema.json.
+# SPDX-License-Identifier: MPL-2.0
+
+product:
+  name: "Nova-Office"
+  short_name: "Nova"
+  vendor: "The Nova-Office contributors"
+  version: "0.1.0-dev"
+  copyright: "Copyright (c) 2026 The Nova-Office contributors and LibreOffice contributors"
+  description: "Open-source, offline-first modern productivity suite"
+
+apps:
+  writer:
+    name: "Nova Writer"
+    id: "nova.writer"
+    based_on: "sw"
+  sheets:
+    name: "Nova Sheets"
+    id: "nova.sheets"
+    based_on: "sc"
+  slides:
+    name: "Nova Slides"
+    id: "nova.slides"
+    based_on: "sd"
+  draw:
+    name: "Nova Draw"
+    id: "nova.draw"
+    based_on: "sd"
+  database:
+    name: "Nova Database"
+    id: "nova.database"
+    based_on: "dbaccess"
+  notes:
+    name: "Nova Notes"
+    id: "nova.notes"
+    based_on: "nova_notes"
+  hub:
+    name: "Nova Hub"
+    id: "nova.hub"
+    based_on: "nova_shell"
+
+urls:
+  homepage: "https://example.org/nova"
+  support: "https://example.org/nova/support"
+  docs: "https://example.org/nova/docs"
+  bug_report: "https://example.org/nova/bugs"
+
+endpoints:
+  # Empty string = feature disabled. Rebrandable / self-hostable.
+  update: ""
+  telemetry: ""
+  registry: ""
+  default_collab_server: ""
+
+branding:
+  logo: "branding/logos/nova.svg"
+  logo_mono: "branding/logos/nova-mono.svg"
+  icon_set: "branding/icons"
+  primary_color: "#4C6FFF"
+
+identifiers:
+  bundle_id_prefix: "org.example.nova"
+  mime_prefix: "application/vnd.nova"
+  url_scheme: "nova"
+
+telemetry:
+  # Hard default. Only an explicit, informed opt-in can flip this (TRD Sec 19).
+  enabled_by_default: false

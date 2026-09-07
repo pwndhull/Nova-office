@@ -1,0 +1,23 @@
+# Nova-Office upstream pin — TARGET (not yet checked out in this environment)
+# scripts/bootstrap-upstream.sh will fetch this ref, add the submodule, and
+# rewrite this file with the resolved commit + date.
+ref: libreoffice-25.8.7.3
+commit: (pending bootstrap)
+commit_date: (pending bootstrap)
+remote: https://git.libreoffice.org/core
+recorded: 2026-09-07T00:00:00Z
+
+# Resolved 2026-09-07 as the latest stable `libreoffice-*` release tag on the
+# upstream remote. LibreOffice 25.8.x series. Bump on LibreOffice's ~6-month
+# train per docs/upstream-strategy.md.
+
+# Nova compliance-first configure flag set (see docs/licensing.md Sec 5).
+configure_flags: >-
+  --disable-poppler
+  --without-java
+  --disable-coinmp
+  --disable-lpsolve
+  --without-system-libcmis
+  --enable-mergelibs
+  --enable-nova
+  --with-nova-product=../../product/product.yaml

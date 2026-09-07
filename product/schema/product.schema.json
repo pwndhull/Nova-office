@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/nova/product.schema.json",
+  "title": "Nova-Office product configuration",
+  "description": "SPDX-License-Identifier: MPL-2.0",
+  "type": "object",
+  "required": ["product", "apps", "urls", "endpoints", "branding", "identifiers"],
+  "additionalProperties": false,
+  "properties": {
+    "product": {
+      "type": "object",
+      "required": ["name", "short_name", "vendor", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "short_name": { "type": "string", "minLength": 1 },
+        "vendor": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.]+)?$" },
+        "copyright": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "apps": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "id"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9.]*$" },
+          "based_on": { "type": "string" }
+        }
+      }
+    },
+    "urls": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "pattern": "^(https://.*)?$" }
+    },
+    "endpoints": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "pattern": "^(https://.*)?$" }
+    },
+    "branding": {
+      "type": "object",
+      "required": ["primary_color"],
+      "additionalProperties": false,
+      "properties": {
+        "logo": { "type": "string" },
+        "logo_mono": { "type": "string" },
+        "icon_set": { "type": "string" },
+        "primary_color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+      }
+    },
+    "identifiers": {
+      "type": "object",
+      "required": ["bundle_id_prefix", "mime_prefix", "url_scheme"],
+      "additionalProperties": false,
+      "properties": {
+        "bundle_id_prefix": { "type": "string", "pattern": "^[a-z0-9.]+$" },
+        "mime_prefix": { "type": "string", "pattern": "^application/[a-z0-9.+-]+$" },
+        "url_scheme": { "type": "string", "pattern": "^[a-z][a-z0-9+.-]*$" }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "enabled_by_default": { "const": false } }
+    }
+  }
+}

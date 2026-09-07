@@ -12,7 +12,7 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` pending · `[!]` blocked
 | # | Task | Status | Notes |
 |---|------|--------|-------|
 | 0.1 | Repo inspection, branch/status, toolchain audit | `[x]` | 2026-09-07. Greenfield repo (README + TRD only). Node 24, Python 3.12. No C++/LO build toolchain. |
-| 0.2 | Decide LibreOffice integration strategy | `[x]` | Submodule + bootstrap script. This repo = Nova Experience Layer. See `docs/upstream-strategy.md`. |
+| 0.2 | Decide LibreOffice integration strategy | `[x]` | Submodule + bootstrap script; pin = libreoffice-25.8.7.3. This repo = Nova Experience Layer. See `docs/upstream-strategy.md`. |
 | 0.3 | `docs/architecture-analysis.md` — LibreOffice deep analysis | `[x]` | Written from established LO architecture; source-verification checklist embedded. |
 | 0.4 | `docs/dependency-map.md` — LO + Nova dependency inventory | `[x]` | |
 | 0.5 | `docs/licensing.md` — license analysis + compliance rules | `[x]` | |
@@ -56,4 +56,13 @@ All `[ ]` — not started. Gated on Phase 0 plan approval + a working LibreOffic
 
 ## Changelog
 
-- 2026-09-07 — Phase 0 docs + Phase 1 config/token scaffolding. Initial structure.
+- 2026-09-07 — Repo scaffold (LICENSE, README, .gitignore, dir tree, TASKS).
+- 2026-09-07 — Phase 0 docs: architecture-analysis, dependency-map, licensing.
+- 2026-09-07 — Phase 0 docs: collaboration-evaluation, architecture (target).
+- 2026-09-07 — Phase 0 docs: offline, sync, collaboration, security, privacy.
+- 2026-09-07 — Phase 0 docs: plugin-system, rebranding, upstream-strategy,
+  build-{linux,macos,windows}, development, contributing.
+- 2026-09-07 — Phase 0 docs: risks, roadmap, design-system, MASTER_IMPLEMENTATION_PLAN.
+- 2026-09-07 — Phase 1: design-token source + build (CSS/JSON/Sass/C++) + tests.
+- 2026-09-07 — Phase 1: product.yaml + schema + gen-branding.mjs + tests;
+  bootstrap-upstream.sh; upstream pin target = libreoffice-25.8.7.3.

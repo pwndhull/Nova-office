@@ -1,0 +1,6 @@
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!-- Original Nova-Office monochrome mark. Placeholder pending a final identity. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Nova-Office">
+  <path d="M64 26 L74 54 L102 64 L74 74 L64 102 L54 74 L26 64 L54 54 Z" fill="currentColor"/>
+  <circle cx="64" cy="64" r="7" fill="#fff"/>
+</svg>
