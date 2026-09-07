@@ -4,6 +4,10 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "BUILD_STATUS.md"
+      - ".github/build-trigger"
+      - ".github/build-attempts"
   pull_request:
 
 jobs:

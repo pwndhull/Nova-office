@@ -172,18 +172,34 @@ jobs:
               echo "✅ **Build complete.** Download \`nova-office-linux-x86_64\` from the run's artifacts."
             else
               echo
-              echo "⏳ Build not finished — the next scheduled run (every 6 h) resumes from the warm ccache."
+              echo "⏳ Not finished — auto-resumes from the warm ccache (next run chains automatically)."
             fi
           } > BUILD_STATUS.md
+
           git config user.name "nova-build[bot]"
           git config user.email "nova-build@users.noreply.github.com"
-          git add BUILD_STATUS.md
-          if git diff --cached --quiet; then
-            echo "BUILD_STATUS unchanged"
+
+          # Auto-resume: not done -> bump attempt counter + touch the trigger file
+          # to chain the next run. Stops after 20 attempts or when done.
+          ATT_FILE=.github/build-attempts
+          ATT=$(cat "$ATT_FILE" 2>/dev/null || echo 0)
+          if [ "$DONE" = "true" ]; then
+            echo 0 > "$ATT_FILE"
+          elif [ "$ATT" -lt 20 ]; then
+            ATT=$((ATT + 1)); echo "$ATT" > "$ATT_FILE"
+            date -u "+resume $ATT @ %Y-%m-%dT%H:%M:%SZ" > .github/build-trigger
           else
-            git commit -m "chore(build): update BUILD_STATUS [skip ci]"
-            for i in 1 2 3; do
+            echo "" >> BUILD_STATUS.md
+            echo "> ⚠️ 20 attempts without completion — needs a human look." >> BUILD_STATUS.md
+          fi
+
+          git add BUILD_STATUS.md "$ATT_FILE" .github/build-trigger
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+          else
+            git commit -m "chore(build): status + auto-resume [skip ci]"
+            for i in 1 2 3 4 5; do
               git pull --rebase --autostash origin main 2>/dev/null || true
-              git push origin HEAD:main && break || { echo "push retry $i"; sleep $((RANDOM % 10 + 3)); }
+              git push origin HEAD:main && break || { echo "push retry $i"; sleep $((RANDOM % 12 + 3)); }
             done
           fi
