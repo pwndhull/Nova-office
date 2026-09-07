@@ -149,57 +149,65 @@ jobs:
           path: nova-office-linux-x86_64.tar.gz
           retention-days: 14
 
-      - name: Write status back to the repo
+      - name: Status + auto-resume
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -x
           DONE='${{ steps.result.outputs.done }}'
-          {
-            echo "# Nova-Office LibreOffice build — status"
-            echo
-            echo "_Updated automatically by the \`Nova build (LibreOffice)\` workflow._"
-            echo
-            echo "- Last run: [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-            echo "- Finished: $(date -u '+%Y-%m-%d %H:%M UTC')"
-            echo "- Completed build this run: **${DONE}**"
-            echo "- ccache:"
-            echo '```'
-            ccache -s | sed -n '1,12p'
-            echo '```'
-            if [ "$DONE" = "true" ]; then
-              echo
-              echo "✅ **Build complete.** Download \`nova-office-linux-x86_64\` from the run's artifacts."
-            else
-              echo
-              echo "⏳ Not finished — auto-resumes from the warm ccache (next run chains automatically)."
-            fi
-          } > BUILD_STATUS.md
+          CCACHE_STATS="$(ccache -s 2>/dev/null | sed -n '1,12p')"
 
           git config user.name "nova-build[bot]"
           git config user.email "nova-build@users.noreply.github.com"
 
-          # Auto-resume: not done -> bump attempt counter + touch the trigger file
-          # to chain the next run. Stops after 20 attempts or when done.
-          ATT_FILE=.github/build-attempts
-          ATT=$(cat "$ATT_FILE" 2>/dev/null || echo 0)
-          if [ "$DONE" = "true" ]; then
-            echo 0 > "$ATT_FILE"
-          elif [ "$ATT" -lt 20 ]; then
-            ATT=$((ATT + 1)); echo "$ATT" > "$ATT_FILE"
-            date -u "+resume $ATT @ %Y-%m-%dT%H:%M:%SZ" > .github/build-trigger
-          else
-            echo "" >> BUILD_STATUS.md
-            echo "> ⚠️ 20 attempts without completion — needs a human look." >> BUILD_STATUS.md
-          fi
+          # Retry the whole read-modify-write so a concurrent push can't wedge us.
+          # Only ever touches BUILD_STATUS.md + .github/build-{attempts,trigger},
+          # which nothing else edits — so there are no content conflicts.
+          for attempt in 1 2 3 4 5 6; do
+            git fetch -q origin main
+            git reset -q --hard origin/main
 
-          git add BUILD_STATUS.md "$ATT_FILE" .github/build-trigger
-          if git diff --cached --quiet; then
-            echo "nothing to commit"
-          else
-            git commit -m "chore(build): status + auto-resume [skip ci]"
-            for i in 1 2 3 4 5; do
-              git pull --rebase --autostash origin main 2>/dev/null || true
-              git push origin HEAD:main && break || { echo "push retry $i"; sleep $((RANDOM % 12 + 3)); }
-            done
-          fi
+            ATT_FILE=.github/build-attempts
+            ATT=$(cat "$ATT_FILE" 2>/dev/null | tr -dc 0-9); ATT=${ATT:-0}
+            RESUME=""
+            if [ "$DONE" = "true" ]; then
+              echo 0 > "$ATT_FILE"
+            elif [ "$ATT" -lt 20 ]; then
+              ATT=$((ATT + 1)); echo "$ATT" > "$ATT_FILE"
+              date -u "+resume attempt $ATT @ %Y-%m-%dT%H:%M:%SZ" > .github/build-trigger
+              RESUME="yes"
+            fi
+
+            {
+              echo "<!-- SPDX-License-Identifier: MPL-2.0 -->"
+              echo "# Nova-Office LibreOffice build — status"
+              echo
+              echo "_Auto-updated by the \`Nova build (LibreOffice)\` workflow._"
+              echo
+              echo "- Last run: [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+              echo "- Finished: $(date -u '+%Y-%m-%d %H:%M UTC')"
+              echo "- Build completed this run: **${DONE:-false}**"
+              echo "- Resume attempts used: ${ATT}/20"
+              echo
+              echo '```'
+              echo "${CCACHE_STATS}"
+              echo '```'
+              if [ "$DONE" = "true" ]; then
+                echo
+                echo "✅ **Build complete.** Artifact \`nova-office-linux-x86_64\` on that run."
+              elif [ -n "$RESUME" ]; then
+                echo
+                echo "⏳ Not finished — the next run auto-starts from the warm ccache."
+              else
+                echo
+                echo "> ⚠️ 20 resume attempts without completion — needs a human look."
+              fi
+            } > BUILD_STATUS.md
+
+            git add BUILD_STATUS.md "$ATT_FILE" .github/build-trigger
+            git diff --cached --quiet && { echo "nothing to commit"; break; }
+            git commit -q -m "chore(build): status${RESUME:+ + resume} (run ${{ github.run_number }})"
+            git push -q origin HEAD:main && { echo "pushed"; break; }
+            echo "push race, retry $attempt"; sleep $((RANDOM % 15 + 5))
+          done
