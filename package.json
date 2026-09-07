@@ -10,7 +10,10 @@
     "build:branding": "node scripts/gen-branding.mjs",
     "build": "npm run build:tokens && npm run build:branding",
     "test": "node --test \"nova/**/*.test.mjs\" \"scripts/**/*.test.mjs\"",
-    "check:tokens": "node scripts/build-tokens.mjs --check"
+    "check:tokens": "node scripts/build-tokens.mjs --check",
+    "check:branding": "node scripts/check-no-hardcoded-branding.mjs",
+    "check:spdx": "node scripts/check-spdx.mjs",
+    "check": "npm run check:tokens && node scripts/gen-branding.mjs --check && npm run check:branding && npm run check:spdx && npm test"
   },
   "engines": { "node": ">=20" }
 }

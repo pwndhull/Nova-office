@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: MPL-2.0
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  experience-layer:
+    name: Experience Layer (tokens, branding, checks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Design tokens — build + contrast gate
+        run: node scripts/build-tokens.mjs
+
+      - name: Branding — validate product.yaml + generate
+        run: node scripts/gen-branding.mjs
+
+      - name: No hardcoded branding (TRD Sec 34)
+        run: node scripts/check-no-hardcoded-branding.mjs
+
+      - name: Unit tests
+        run: npm test
+
+      - name: SPDX headers on new source
+        run: node scripts/check-spdx.mjs
+
+  # Placeholder for the LibreOffice-linked build. Requires a large self-hosted
+  # runner (16 core / 32 GB / 100 GB). NOT ENABLED until a build host exists
+  # (docs/risks.md R-1).
+  #
+  # nova-build:
+  #   runs-on: [self-hosted, linux, libreoffice-build]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with: { submodules: recursive }
+  #     - run: ./scripts/bootstrap-upstream.sh
+  #     - run: ./scripts/nova-autogen.sh && make -C third_party/libreoffice
+  #     - run: make -C third_party/libreoffice check
+  #     - run: make -C third_party/libreoffice nova.check
+  #     - run: make -C tests compat offline sync conflict
