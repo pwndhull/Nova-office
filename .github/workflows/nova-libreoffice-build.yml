@@ -55,11 +55,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential git ccache nasm python3-dev \
+            build-essential git ccache nasm gperf python3-dev zip unzip \
             autoconf automake libtool pkg-config gettext bison flex \
             libkrb5-dev libgtk-3-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-            libxrandr-dev libxinerama-dev libxml2-dev libxslt1-dev libfontconfig1-dev \
-            libcups2-dev libnss3-dev libavahi-client-dev
+            libxrandr-dev libxinerama-dev libxrender-dev libxext-dev libx11-dev libxt-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libglm-dev \
+            libxml2-dev libxslt1-dev libfontconfig1-dev libcairo2-dev \
+            libcups2-dev libnss3-dev libavahi-client-dev libdbus-1-dev libgpgme-dev
 
       - name: Restore ccache
         uses: actions/cache@v4
@@ -172,17 +174,15 @@ jobs:
               echo "⏳ Build not finished — the next scheduled run (every 6 h) resumes from the warm ccache."
             fi
           } > BUILD_STATUS.md
-          if ! git diff --quiet BUILD_STATUS.md; then
-            git config user.name "nova-build[bot]"
-            git config user.email "nova-build@users.noreply.github.com"
-            git add BUILD_STATUS.md
+          git config user.name "nova-build[bot]"
+          git config user.email "nova-build@users.noreply.github.com"
+          git add BUILD_STATUS.md
+          if git diff --cached --quiet; then
+            echo "BUILD_STATUS unchanged"
+          else
             git commit -m "chore(build): update BUILD_STATUS [skip ci]"
-            git push
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin main 2>/dev/null || true
+              git push origin HEAD:main && break || { echo "push retry $i"; sleep $((RANDOM % 10 + 3)); }
+            done
           fi
-
-      - name: Re-trigger if unfinished
-        if: steps.result.outputs.done != 'true' && github.event_name == 'workflow_dispatch'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "build incomplete — the every-6h schedule will resume it."
