@@ -1,0 +1,84 @@
+name: Package · playground
+
+# Builds the design layer and packages the playground explorer into a
+# self-contained, architecture-independent bundle (.tar.gz + .zip).
+#
+#   - every push to nova-main / main  → downloadable workflow artifact
+#   - manual run (Actions ▸ Run workflow) → same, on any branch
+#   - tag v*                          → the bundle is attached to the GitHub Release
+#
+# Download: open the workflow run, "Artifacts" section at the bottom.
+
+on:
+  push:
+    branches: [nova-main, main]
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: package-playground-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write # needed only for the release upload on tags
+
+jobs:
+  build:
+    name: Build & package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # scripts/version.mjs reads tags + commit distance
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.0'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build (tokens pipeline + playground)
+        run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Resolve version
+        id: v
+        run: echo "version=$(node scripts/version.mjs print --plain)" >> "$GITHUB_OUTPUT"
+
+      - name: Stage bundle
+        env:
+          NOVA_VERSION: ${{ steps.v.outputs.version }}
+          NOVA_REF: ${{ github.ref_name }}
+        run: node scripts/pack-playground.mjs dist-bundle
+
+      - name: Archive
+        working-directory: dist-bundle
+        run: |
+          base="nova-office-playground-${{ steps.v.outputs.version }}"
+          tar -czf "../${base}.tar.gz" nova-office-playground
+          ( cd nova-office-playground && zip -qr "../../${base}.zip" . )
+          ls -la ../*.tar.gz ../*.zip
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nova-office-playground-${{ steps.v.outputs.version }}
+          path: |
+            nova-office-playground-*.tar.gz
+            nova-office-playground-*.zip
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            nova-office-playground-*.tar.gz
+            nova-office-playground-*.zip
