@@ -1,0 +1,256 @@
+# SPDX-License-Identifier: MPL-2.0
+#
+# Full Nova-Office build for macOS (Apple Silicon / arm64) on a free
+# GitHub-hosted `macos-15` runner. Native build.
+#
+# Same resume-across-runs design as the Linux builds: a persistent ccache means
+# each run compiles more than the last. Resumes every 2 h on a schedule, or
+# immediately when .github/build-trigger-mac is pushed. State is kept in
+# MAC-suffixed files so the three arches never collide.
+
+name: Nova build (LibreOffice) · macOS
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "7 */2 * * *" # every 2 h, offset from :17 (x86_64) and :47 (aarch64)
+  push:
+    branches: [main]
+    paths:
+      - ".github/build-trigger-mac"
+      - ".github/workflows/nova-libreoffice-build-macos.yml"
+
+concurrency:
+  group: nova-libreoffice-build-macos
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+  # dmg packaging during `make` (belt and braces with --with-package-format=dmg)
+  PKGFORMAT: dmg
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stop if already built
+        id: guard
+        run: |
+          if [ -f .github/build-done-mac ]; then
+            echo "go=false" >> "$GITHUB_OUTPUT"
+            echo "macOS build already completed — delete .github/build-done-mac to force a rebuild."
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Confirm we are on Apple Silicon
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          uname -m
+          test "$(uname -m)" = "arm64" || { echo "::error::runner is not arm64"; exit 1; }
+          sw_vers; xcodebuild -version; df -h /
+
+      - uses: actions/setup-node@v4
+        if: steps.guard.outputs.go == 'true'
+        with: { node-version: "22" }
+
+      - name: Install build toolchain
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          # LibreOffice's autogen.sh runs autoreconf → needs GNU autotools,
+          # which macOS does not ship. Everything else LibreOffice downloads.
+          brew install autoconf automake libtool pkg-config gettext m4 ccache coreutils
+          brew link --force gettext
+          echo "$(brew --prefix gettext)/bin" >> "$GITHUB_PATH"
+          echo "$(brew --prefix m4)/bin" >> "$GITHUB_PATH"
+
+      - name: ccache (restore)
+        if: steps.guard.outputs.go == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: lo-ccache-mac-${{ github.run_id }}
+          restore-keys: lo-ccache-mac-
+
+      - name: external tarballs (restore)
+        if: steps.guard.outputs.go == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/lo-tarballs
+          key: lo-tarballs-mac-${{ hashFiles('third_party/UPSTREAM_PIN') }}
+          restore-keys: lo-tarballs-mac-
+
+      - name: ccache config
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          mkdir -p ~/lo-tarballs "$CCACHE_DIR"
+          ccache -M 12G
+          ccache -o compression=true
+          ccache -z
+          ccache --show-config | grep -E "cache_dir|max_size" || true
+
+      - name: Fetch pinned LibreOffice
+        if: steps.guard.outputs.go == 'true'
+        run: ./scripts/bootstrap-upstream.sh
+
+      - name: Apply Nova patches
+        if: steps.guard.outputs.go == 'true'
+        run: ./scripts/apply-patches.sh
+
+      - name: Configure
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          node scripts/build-tokens.mjs
+          node scripts/gen-branding.mjs
+          ./scripts/nova-autogen.sh \
+            --disable-mergelibs --enable-ccache \
+            --with-parallelism=4 \
+            --with-package-format=dmg \
+            --with-external-tar="$HOME/lo-tarballs"
+          (cd third_party/libreoffice && ./autogen.sh)
+
+      - name: Build (time-boxed; resumes next run)
+        if: steps.guard.outputs.go == 'true'
+        id: build
+        run: |
+          cd third_party/libreoffice
+          set +e
+          # gtimeout from coreutils — macOS has no `timeout`.
+          gtimeout 300m make -j4 > "$HOME/build.log" 2>&1
+          rc=$?
+          set -e
+          echo "make exit: $rc  (124 = our timeout, expected on a cold run)"
+          echo "----- last 120 lines -----"
+          tail -n 120 "$HOME/build.log"
+          echo "----- error lines -----"
+          grep -nE "\bError [0-9]+\b|\*\*\* |: error:|No such file|cannot find|Undefined symbol|ld: |Segmentation fault|Killed|No space left" "$HOME/build.log" | tail -80 || true
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+
+      - name: ccache stats
+        if: steps.guard.outputs.go == 'true'
+        run: ccache -s
+
+      - name: Check result
+        if: steps.guard.outputs.go == 'true'
+        id: result
+        run: |
+          app="$(find third_party/libreoffice/instdir -maxdepth 1 -name '*.app' | head -1)"
+          if [ -n "$app" ] && [ -x "$app/Contents/MacOS/soffice" ]; then
+            echo "done=true" >> "$GITHUB_OUTPUT"
+            echo "app=$app" >> "$GITHUB_OUTPUT"
+            "$app/Contents/MacOS/soffice" --version || true
+          else
+            echo "done=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Collect installables
+        if: steps.result.outputs.done == 'true'
+        id: collect
+        continue-on-error: true
+        run: |
+          ccache -C || true
+          cd third_party/libreoffice
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          # 1. the .dmg (make already produced it if the compile finished this run)
+          if ! find workdir/installation -name '*.dmg' -print -quit | grep -q .; then
+            echo "no .dmg yet — running the packaging module"
+            gtimeout 40m make -j4 2>&1 | tail -n 60 || true
+          fi
+          dmg="$(find workdir/installation -name '*.dmg' | head -1)"
+          if [ -n "$dmg" ]; then
+            cp "$dmg" "$GITHUB_WORKSPACE/dist/nova-office-macos-arm64.dmg"
+            echo "dmg=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dmg=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::no .dmg produced — shipping the .app tarball only"
+          fi
+          # 2. always also ship the .app bundle (tar keeps perms + symlinks)
+          app="$(find instdir -maxdepth 1 -name '*.app' | head -1)"
+          tar -C "$(dirname "$app")" -czf "$GITHUB_WORKSPACE/dist/nova-office-macos-arm64-app.tar.gz" "$(basename "$app")"
+          ls -la "$GITHUB_WORKSPACE/dist"
+
+      - name: Write INSTALL.md
+        if: steps.result.outputs.done == 'true'
+        run: |
+          cat > dist/INSTALL.md <<'EOF'
+          # Nova-Office — macOS (Apple Silicon)
+
+          The build is **unsigned**, so macOS Gatekeeper will block it on first
+          launch. After copying to /Applications, clear the quarantine flag:
+
+              xattr -dr com.apple.quarantine "/Applications/Nova-Office.app"
+
+          (or right-click the app → Open → Open).
+
+          ## nova-office-macos-arm64.dmg
+          Open it, drag Nova-Office to Applications, then run the xattr line above.
+
+          ## nova-office-macos-arm64-app.tar.gz
+              tar xzf nova-office-macos-arm64-app.tar.gz
+              mv *.app /Applications/
+              xattr -dr com.apple.quarantine /Applications/*.app
+          EOF
+
+      - name: Upload make log
+        if: steps.guard.outputs.go == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: make-log-mac-${{ github.run_number }}
+          path: ~/build.log
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload Nova-Office build
+        if: steps.result.outputs.done == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nova-office-macos-arm64
+          path: dist/*
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Status + attempt counter
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          DONE='${{ steps.result.outputs.done }}'
+          GUARD='${{ steps.guard.outputs.go }}'
+          CC="$(ccache -s 2>/dev/null | sed -n '1,10p' || true)"
+          git config user.name "nova-build[bot]"
+          git config user.email "nova-build@users.noreply.github.com"
+          for attempt in 1 2 3 4 5 6; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            ATT=$(tr -dc 0-9 < .github/build-attempts-mac 2>/dev/null); ATT=${ATT:-0}
+            NOTE="⏳ Not finished — resumes on the 2-hourly schedule (or push .github/build-trigger-mac)."
+            if [ "$DONE" = "true" ]; then
+              echo 0 > .github/build-attempts-mac
+              date -u '+built %Y-%m-%dT%H:%M:%SZ' > .github/build-done-mac
+              NOTE="✅ **macOS build complete.** Download \`nova-office-macos-arm64\` from [run #${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+            elif [ "$GUARD" = "true" ]; then
+              ATT=$((ATT + 1)); echo "$ATT" > .github/build-attempts-mac
+              [ "$ATT" -ge 20 ] && NOTE="> ⚠️ 20 resume attempts — needs a human look."
+            fi
+            {
+              echo "<!-- SPDX-License-Identifier: MPL-2.0 -->"
+              echo "# Nova-Office LibreOffice build (macOS arm64) — status"
+              echo
+              echo "- Last run: [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) — $(date -u '+%Y-%m-%d %H:%M UTC')"
+              echo "- Build completed: **${DONE:-false}**   ·   resume attempts: ${ATT}/20"
+              echo
+              echo '```'; echo "$CC"; echo '```'
+              echo; echo "$NOTE"
+            } > BUILD_STATUS_MAC.md
+            git add BUILD_STATUS_MAC.md .github/build-attempts-mac .github/build-done-mac 2>/dev/null || git add BUILD_STATUS_MAC.md .github/build-attempts-mac
+            git diff --cached --quiet && { echo "nothing to commit"; break; }
+            git commit -q -m "chore(build): macOS status (run ${{ github.run_number }}, done=${DONE:-false})"
+            git push -q origin HEAD:main && { echo pushed; break; }
+            sleep $((RANDOM % 15 + 5))
+          done
