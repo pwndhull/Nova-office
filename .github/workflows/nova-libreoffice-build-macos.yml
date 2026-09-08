@@ -66,8 +66,14 @@ jobs:
           # macOS ships GNU make 3.81 and no GNU autotools. LibreOffice's
           # configure hard-fails on make < 4.0, autogen.sh needs autoreconf,
           # and gtimeout comes from coreutils.
-          brew install autoconf automake libtool pkg-config gettext m4 ccache coreutils make gawk
+          brew install autoconf automake libtool gettext m4 ccache coreutils make gawk
           brew link --force gettext
+          # LibreOffice's configure rejects a pkg-config it doesn't recognise on
+          # macOS ("yes, from unknown origin. This *will* break the build") --
+          # Homebrew now ships pkgconf under that name. macOS builds bundle all
+          # their dependencies and need no pkg-config, so take it off PATH.
+          brew uninstall --ignore-dependencies pkgconf pkg-config 2>/dev/null || true
+          rm -f "$(brew --prefix)/bin/pkg-config" "$(brew --prefix)/bin/pkgconf" || true
           # gnubin exposes GNU make as `make`, ahead of /usr/bin, for every
           # later step (configure AND the build both need >= 4.0).
           {
@@ -84,6 +90,10 @@ jobs:
           autoconf --version | head -1
           v=$(make --version | sed -n 's/^GNU Make \([0-9][0-9]*\).*/\1/p')
           test "${v:-0}" -ge 4 || { echo "::error::GNU make >= 4 not first on PATH (got ${v:-none})"; exit 1; }
+          if command -v pkg-config >/dev/null 2>&1; then
+            echo "::error::pkg-config is on PATH at $(command -v pkg-config) — LibreOffice's macOS configure rejects it"; exit 1
+          fi
+          echo "pkg-config: absent (correct for macOS)"
 
       - name: ccache (restore)
         if: steps.guard.outputs.go == 'true'
