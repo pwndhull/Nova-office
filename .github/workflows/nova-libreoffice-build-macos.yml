@@ -63,12 +63,27 @@ jobs:
       - name: Install build toolchain
         if: steps.guard.outputs.go == 'true'
         run: |
-          # LibreOffice's autogen.sh runs autoreconf → needs GNU autotools,
-          # which macOS does not ship. Everything else LibreOffice downloads.
-          brew install autoconf automake libtool pkg-config gettext m4 ccache coreutils
+          # macOS ships GNU make 3.81 and no GNU autotools. LibreOffice's
+          # configure hard-fails on make < 4.0, autogen.sh needs autoreconf,
+          # and gtimeout comes from coreutils.
+          brew install autoconf automake libtool pkg-config gettext m4 ccache coreutils make gawk
           brew link --force gettext
-          echo "$(brew --prefix gettext)/bin" >> "$GITHUB_PATH"
-          echo "$(brew --prefix m4)/bin" >> "$GITHUB_PATH"
+          # gnubin exposes GNU make as `make`, ahead of /usr/bin, for every
+          # later step (configure AND the build both need >= 4.0).
+          {
+            echo "$(brew --prefix make)/libexec/gnubin"
+            echo "$(brew --prefix gettext)/bin"
+            echo "$(brew --prefix m4)/bin"
+          } >> "$GITHUB_PATH"
+
+      - name: Toolchain versions
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          make --version | head -1
+          gawk --version | head -1
+          autoconf --version | head -1
+          v=$(make --version | sed -n 's/^GNU Make \([0-9][0-9]*\).*/\1/p')
+          test "${v:-0}" -ge 4 || { echo "::error::GNU make >= 4 not first on PATH (got ${v:-none})"; exit 1; }
 
       - name: ccache (restore)
         if: steps.guard.outputs.go == 'true'
