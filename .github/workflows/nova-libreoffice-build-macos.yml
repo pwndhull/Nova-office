@@ -66,7 +66,7 @@ jobs:
           # macOS ships GNU make 3.81 and no GNU autotools. LibreOffice's
           # configure hard-fails on make < 4.0, autogen.sh needs autoreconf,
           # and gtimeout comes from coreutils.
-          brew install autoconf automake libtool gettext m4 ccache coreutils make gawk
+          brew install autoconf automake libtool gettext m4 ccache coreutils make gawk gperf
           brew link --force gettext
           # LibreOffice's configure rejects a pkg-config it doesn't recognise on
           # macOS ("yes, from unknown origin. This *will* break the build") --
@@ -80,6 +80,7 @@ jobs:
             echo "$(brew --prefix make)/libexec/gnubin"
             echo "$(brew --prefix gettext)/bin"
             echo "$(brew --prefix m4)/bin"
+            echo "$(brew --prefix gperf)/bin"
           } >> "$GITHUB_PATH"
 
       - name: Toolchain versions
@@ -94,6 +95,9 @@ jobs:
             echo "::error::pkg-config is on PATH at $(command -v pkg-config) — LibreOffice's macOS configure rejects it"; exit 1
           fi
           echo "pkg-config: absent (correct for macOS)"
+          gperf --version | head -1
+          g=$(gperf --version | sed -n 's/.*GNU gperf \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1\2/p')
+          test "${g:-0}" -ge 31 || { echo "::error::gperf >= 3.1 not first on PATH (macOS ships 3.0.3)"; exit 1; }
 
       - name: ccache (restore)
         if: steps.guard.outputs.go == 'true'
