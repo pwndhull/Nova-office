@@ -33,6 +33,9 @@ permissions:
 
 env:
   CCACHE_DIR: ${{ github.workspace }}/.ccache
+  # Triggers LibreOffice's instsetoo_native packaging during `make` (belt and
+  # braces with the --with-package-format=rpm configure flag).
+  PKGFORMAT: rpm
 
 jobs:
   build:
@@ -80,8 +83,11 @@ jobs:
             libxrandr-dev libxinerama-dev libxrender-dev libxext-dev libx11-dev libxt-dev \
             libgl1-mesa-dev libglu1-mesa-dev libglm-dev \
             libxml2-dev libxml2-utils libxslt1-dev libfontconfig1-dev libcairo2-dev \
-            libcups2-dev libnss3-dev libavahi-client-dev libdbus-1-dev libgpgme-dev
+            libcups2-dev libnss3-dev libavahi-client-dev libdbus-1-dev libgpgme-dev \
+            rpm
           # nasm is x86-only and not needed on aarch64.
+          # rpm provides rpmbuild — LibreOffice's instsetoo_native uses it to
+          # emit .rpm packages even though the runner is Debian-based.
 
       - name: ccache (restore)
         if: steps.guard.outputs.go == 'true'
@@ -124,6 +130,7 @@ jobs:
           ./scripts/nova-autogen.sh \
             --disable-mergelibs --enable-ccache \
             --with-parallelism=4 \
+            --with-package-format=rpm \
             --with-external-tar="$HOME/lo-tarballs"
           (cd third_party/libreoffice && ./autogen.sh)
 
@@ -133,7 +140,10 @@ jobs:
         run: |
           cd third_party/libreoffice
           set +e
-          timeout 320m make build -j4 > "$HOME/build.log" 2>&1
+          # `make` (not `make build`) so instsetoo_native is in the graph and,
+          # with --with-package-format=rpm, the .rpm set is produced once the
+          # compile finishes. On a timed-out resume run it just never gets there.
+          timeout 320m make -j4 > "$HOME/build.log" 2>&1
           rc=$?
           set -e
           echo "make exit: $rc  (124 = our timeout, expected on a cold run)"
@@ -158,6 +168,51 @@ jobs:
             echo "done=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Build .rpm packages
+        if: steps.result.outputs.done == 'true'
+        continue-on-error: true # a packaging failure must not lose the portable build
+        run: |
+          # The build is done, so ccache is no longer needed this run and
+          # future runs are guarded by .github/build-done-arm — reclaim its
+          # ~8 GB so RPM packaging has room to work.
+          ccache -C || true
+          df -h /
+          cd third_party/libreoffice
+          # If the compile finished this run, `make` above already produced the
+          # packages. If it finished on an earlier run (instdir cached, restart
+          # skipped straight past), force the packaging module now.
+          if ! find workdir/installation -name '*.rpm' -print -quit | grep -q .; then
+            echo "no .rpm yet — running instsetoo_native"
+            timeout 40m make instsetoo_native -j4 2>&1 | tail -n 80
+          fi
+          echo "----- rpm inventory -----"
+          find workdir/installation -name '*.rpm' | sort
+
+      - name: Collect installables
+        if: steps.result.outputs.done == 'true'
+        id: collect
+        run: |
+          cd third_party/libreoffice
+          mkdir -p "$GITHUB_WORKSPACE/dist/rpms"
+          # 1. every .rpm produced, flattened into one dir
+          n=0
+          while IFS= read -r f; do
+            cp "$f" "$GITHUB_WORKSPACE/dist/rpms/" && n=$((n+1))
+          done < <(find workdir/installation -name '*.rpm')
+          if [ "$n" -gt 0 ]; then
+            tar -C "$GITHUB_WORKSPACE/dist" -czf "$GITHUB_WORKSPACE/dist/nova-office-linux-aarch64-rpm.tar.gz" rpms
+            rm -rf "$GITHUB_WORKSPACE/dist/rpms"
+            echo "rpms=true" >> "$GITHUB_OUTPUT"
+            echo "Packaged $n rpm(s)"
+          else
+            rm -rf "$GITHUB_WORKSPACE/dist/rpms"
+            echo "rpms=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::no .rpm produced — shipping the portable tree only"
+          fi
+          # 2. always also ship the portable instdir (extract & run, no root)
+          tar -C instdir -czf "$GITHUB_WORKSPACE/dist/nova-office-linux-aarch64-portable.tar.gz" .
+          ls -la "$GITHUB_WORKSPACE/dist"
+
       - name: Upload make log
         if: steps.guard.outputs.go == 'true' && always()
         uses: actions/upload-artifact@v4
@@ -167,17 +222,37 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
 
-      - name: Package + upload
+      - name: Write INSTALL.md
         if: steps.result.outputs.done == 'true'
         run: |
-          tar -C third_party/libreoffice/instdir -czf nova-office-linux-aarch64.tar.gz .
+          cat > dist/INSTALL.md <<'EOF'
+          # Nova-Office — aarch64 Linux
+
+          Two forms in this download:
+
+          ## nova-office-linux-aarch64-rpm.tar.gz  — install with dnf (Fedora / Asahi)
+          ```
+          tar xzf nova-office-linux-aarch64-rpm.tar.gz
+          sudo dnf install ./rpms/*.rpm
+          ```
+          Installs under /opt, adds the launcher entries. Remove with
+          `sudo dnf remove $(rpm -qa | grep -i nova)`.
+
+          ## nova-office-linux-aarch64-portable.tar.gz  — no install, no root
+          ```
+          tar xzf nova-office-linux-aarch64-portable.tar.gz
+          ./program/soffice
+          ```
+          EOF
+
       - name: Upload Nova-Office build
         if: steps.result.outputs.done == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: nova-office-linux-aarch64
-          path: nova-office-linux-aarch64.tar.gz
+          path: dist/*
           retention-days: 14
+          if-no-files-found: error
 
       - name: Status + attempt counter
         if: always()
