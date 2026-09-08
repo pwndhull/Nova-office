@@ -1,0 +1,220 @@
+# SPDX-License-Identifier: MPL-2.0
+#
+# Full Nova-Office build for ARM64 Linux (Fedora Asahi Remix, Raspberry Pi,
+# Ampere, Apple-silicon Linux) on a free GitHub-hosted `ubuntu-24.04-arm`
+# runner. Native build — no emulation, no cross-compile.
+#
+# `ubuntu-24.04-arm` hosted runners are free only for PUBLIC repositories.
+#
+# Same resume-across-runs design as nova-libreoffice-build.yml (the x86_64
+# build): a persistent ccache means each run compiles more than the last. It
+# resumes every 2 h on a schedule, or immediately when .github/build-trigger-arm
+# is pushed. State is kept in ARM-suffixed files so the two arches never
+# collide.
+
+name: Nova build (LibreOffice) · aarch64
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "47 */2 * * *" # every 2 h, offset from the x86_64 build's :17
+  push:
+    branches: [main]
+    paths:
+      - ".github/build-trigger-arm"
+      - ".github/workflows/nova-libreoffice-build-aarch64.yml"
+
+concurrency:
+  group: nova-libreoffice-build-aarch64
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stop if already built
+        id: guard
+        run: |
+          if [ -f .github/build-done-arm ]; then
+            echo "go=false" >> "$GITHUB_OUTPUT"
+            echo "aarch64 build already completed — delete .github/build-done-arm to force a rebuild."
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Confirm we are on ARM64
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          uname -m
+          test "$(uname -m)" = "aarch64" || { echo "::error::runner is not aarch64 — is this repo public? free ARM runners need a public repo"; exit 1; }
+
+      - name: Free up disk
+        if: steps.guard.outputs.go == 'true'
+        uses: jlumbroso/free-disk-space@main
+        with: { tool-cache: true, large-packages: true, docker-images: true, swap-storage: false }
+
+      - if: steps.guard.outputs.go == 'true'
+        run: df -h /
+
+      - uses: actions/setup-node@v4
+        if: steps.guard.outputs.go == 'true'
+        with: { node-version: "22" }
+
+      - name: Install build dependencies
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential git ccache gperf python3-dev zip unzip \
+            autoconf automake libtool pkg-config gettext bison flex xsltproc \
+            libkrb5-dev libgtk-3-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+            libxrandr-dev libxinerama-dev libxrender-dev libxext-dev libx11-dev libxt-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libglm-dev \
+            libxml2-dev libxml2-utils libxslt1-dev libfontconfig1-dev libcairo2-dev \
+            libcups2-dev libnss3-dev libavahi-client-dev libdbus-1-dev libgpgme-dev
+          # nasm is x86-only and not needed on aarch64.
+
+      - name: ccache (restore)
+        if: steps.guard.outputs.go == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: lo-ccache-arm-${{ github.run_id }}
+          restore-keys: lo-ccache-arm-
+
+      - name: external tarballs (restore)
+        if: steps.guard.outputs.go == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/lo-tarballs
+          key: lo-tarballs-arm-${{ hashFiles('third_party/UPSTREAM_PIN') }}
+          restore-keys: lo-tarballs-arm-
+
+      - name: ccache config
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          mkdir -p ~/lo-tarballs "$CCACHE_DIR"
+          ccache -M 8G
+          ccache -o compression=true
+          ccache -z
+          ccache --show-config | grep -E "cache_dir|max_size" || true
+
+      - name: Fetch pinned LibreOffice
+        if: steps.guard.outputs.go == 'true'
+        run: ./scripts/bootstrap-upstream.sh
+
+      - name: Apply Nova patches
+        if: steps.guard.outputs.go == 'true'
+        run: ./scripts/apply-patches.sh
+
+      - name: Configure
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          node scripts/build-tokens.mjs
+          node scripts/gen-branding.mjs
+          ./scripts/nova-autogen.sh \
+            --disable-mergelibs --enable-ccache \
+            --with-parallelism=4 \
+            --with-external-tar="$HOME/lo-tarballs"
+          (cd third_party/libreoffice && ./autogen.sh)
+
+      - name: Build (time-boxed; resumes next run)
+        if: steps.guard.outputs.go == 'true'
+        id: build
+        run: |
+          cd third_party/libreoffice
+          set +e
+          timeout 320m make build -j4 > "$HOME/build.log" 2>&1
+          rc=$?
+          set -e
+          echo "make exit: $rc  (124 = our timeout, expected on a cold run)"
+          echo "----- last 120 lines -----"
+          tail -n 120 "$HOME/build.log"
+          echo "----- error lines -----"
+          grep -nE "\bError [0-9]+\b|\*\*\* |: error:|recipe for target|No such file|cannot find|undefined reference|Segmentation fault|Killed|No space left" "$HOME/build.log" | tail -80 || true
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+
+      - name: ccache stats
+        if: steps.guard.outputs.go == 'true'
+        run: ccache -s
+
+      - name: Check result
+        if: steps.guard.outputs.go == 'true'
+        id: result
+        run: |
+          if [ -x third_party/libreoffice/instdir/program/soffice.bin ]; then
+            echo "done=true" >> "$GITHUB_OUTPUT"
+            third_party/libreoffice/instdir/program/soffice.bin --version || true
+          else
+            echo "done=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload make log
+        if: steps.guard.outputs.go == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: make-log-arm-${{ github.run_number }}
+          path: ~/build.log
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Package + upload
+        if: steps.result.outputs.done == 'true'
+        run: |
+          tar -C third_party/libreoffice/instdir -czf nova-office-linux-aarch64.tar.gz .
+      - name: Upload Nova-Office build
+        if: steps.result.outputs.done == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nova-office-linux-aarch64
+          path: nova-office-linux-aarch64.tar.gz
+          retention-days: 14
+
+      - name: Status + attempt counter
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          DONE='${{ steps.result.outputs.done }}'
+          GUARD='${{ steps.guard.outputs.go }}'
+          CC="$(ccache -s 2>/dev/null | sed -n '1,10p' || true)"
+          git config user.name "nova-build[bot]"
+          git config user.email "nova-build@users.noreply.github.com"
+          for attempt in 1 2 3 4 5 6; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            ATT=$(tr -dc 0-9 < .github/build-attempts-arm 2>/dev/null); ATT=${ATT:-0}
+            NOTE="⏳ Not finished — resumes on the 2-hourly schedule (or push .github/build-trigger-arm)."
+            if [ "$DONE" = "true" ]; then
+              echo 0 > .github/build-attempts-arm
+              date -u '+built %Y-%m-%dT%H:%M:%SZ' > .github/build-done-arm
+              NOTE="✅ **aarch64 build complete.** Download \`nova-office-linux-aarch64\` from [run #${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+            elif [ "$GUARD" = "true" ]; then
+              ATT=$((ATT + 1)); echo "$ATT" > .github/build-attempts-arm
+              [ "$ATT" -ge 20 ] && NOTE="> ⚠️ 20 resume attempts — needs a human look."
+            fi
+            {
+              echo "<!-- SPDX-License-Identifier: MPL-2.0 -->"
+              echo "# Nova-Office LibreOffice build (aarch64) — status"
+              echo
+              echo "- Last run: [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) — $(date -u '+%Y-%m-%d %H:%M UTC')"
+              echo "- Build completed: **${DONE:-false}**   ·   resume attempts: ${ATT}/20"
+              echo
+              echo '```'; echo "$CC"; echo '```'
+              echo; echo "$NOTE"
+            } > BUILD_STATUS_ARM.md
+            git add BUILD_STATUS_ARM.md .github/build-attempts-arm .github/build-done-arm 2>/dev/null || git add BUILD_STATUS_ARM.md .github/build-attempts-arm
+            git diff --cached --quiet && { echo "nothing to commit"; break; }
+            git commit -q -m "chore(build): aarch64 status (run ${{ github.run_number }}, done=${DONE:-false})"
+            git push -q origin HEAD:main && { echo pushed; break; }
+            sleep $((RANDOM % 15 + 5))
+          done
