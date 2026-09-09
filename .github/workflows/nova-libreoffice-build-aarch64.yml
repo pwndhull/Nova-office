@@ -130,7 +130,7 @@ jobs:
           ./scripts/nova-autogen.sh \
             --disable-mergelibs --enable-ccache \
             --with-parallelism=4 \
-            --with-package-format=rpm \
+            --with-package-format=rpm --enable-epm \
             --with-external-tar="$HOME/lo-tarballs"
           (cd third_party/libreoffice && ./autogen.sh)
 
