@@ -74,12 +74,15 @@ if [[ -d nova/nova_theme ]]; then
       exit 1; }
     echo "[nova-autogen] registered nova_theme module"
   fi
+  # nova_theme is an ordinary office component library, so it belongs in the
+  # OOOLIBS/ooo install set — the block that carries uui, utl and friends. That
+  # header appears several times; the one followed by "avmedia" is the right one.
   REPO="$SUBMOD/Repository.mk"
   if ! grep -q 'nova_theme' "$REPO"; then
-    perl -0pi -e 's/^(\$\(eval \$\(call gb_Helper_register_libraries,PLAINLIBS_OOO, \\\n)/$1\tnova_theme \\\n/m' "$REPO"
+    perl -0pi -e 's/^(\$\(eval \$\(call gb_Helper_register_libraries_for_install,OOOLIBS,ooo, \\\n[ \t]*avmedia \\\n)/$1\tnova_theme \\\n/m' "$REPO"
     grep -q 'nova_theme' "$REPO" || {
       echo "ERROR: could not register nova_theme library in Repository.mk;" >&2
-      echo "       the PLAINLIBS_OOO anchor moved — see docs/shell-implementation-plan.md" >&2
+      echo "       the OOOLIBS,ooo/avmedia anchor moved — see docs/shell-implementation-plan.md" >&2
       exit 1; }
     echo "[nova-autogen] registered nova_theme library"
   fi
