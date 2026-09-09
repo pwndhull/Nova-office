@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<component loader="com.sun.star.loader.SharedLibrary" environment="@CPPU_ENV@"
+    xmlns="http://openoffice.org/2010/uno-components">
+  <implementation name="org.novaoffice.comp.ThemeJob"
+      constructor="nova_theme_ThemeJob_get_implementation">
+    <service name="org.novaoffice.ThemeJob"/>
+  </implementation>
+</component>

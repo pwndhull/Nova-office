@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!-- Nova defaults for the toolbar layout (TRD §6 band 2: ONE contextual
+     toolbar, not LibreOffice's stacked standard+formatting rows).
+
+     ContextualSingle = a single row whose contents follow the selection, which
+     is exactly the §6 "contextual toolbar". Users can still change this in
+     View > User Interface; this only moves the default. -->
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry"
+                    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                    oor:name="UI" oor:package="org.openoffice.Office">
+  <node oor:name="ToolbarMode">
+    <prop oor:name="ActiveWriter" oor:op="fuse"><value>ContextualSingle</value></prop>
+    <prop oor:name="ActiveCalc" oor:op="fuse"><value>Single</value></prop>
+    <prop oor:name="ActiveImpress" oor:op="fuse"><value>Single</value></prop>
+    <prop oor:name="ActiveDraw" oor:op="fuse"><value>Single</value></prop>
+  </node>
+</oor:component-data>
