@@ -50,7 +50,7 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` pending · `[!]` blocked
 | 1.11 | Cargo workspace + Rust CI job (fmt/clippy/test/build) | `[x]` | |
 | 5.1 | `ycrdt` (Rust): Nova Notes block-tree CRDT over `yrs` + C ABI (`ycrdt.h`) | `[x]` | 15 tests incl. concurrent-insert/text-merge convergence, root-type merge, snapshot roundtrip, byte-identical `document.json` after convergence. Rich-text marks, `.nova` package, backlink graph, GC policy = NOT IMPLEMENTED. |
 | 5.2 | `nova-cli` (`nova` binary): runnable local offline-first Notes workspace | `[x]` | init / page / block / **sync** (offline merge via checksummed NovaSyncEnvelope) / log. On-disk workspace per docs/architecture.md §5.1. e2e integration test. First runnable Nova program. |
-| 1.6 | Application shell (VCL-level) | `[ ]` | NOT IMPLEMENTED — requires LO build environment. Design in `docs/architecture.md` §Shell. |
+| 1.6 | Application shell (VCL-level) | `[ ]` | NOT IMPLEMENTED. Build environment blocker **cleared** 2026-09-09 (Linux aarch64 + macOS arm64 both green). Phased plan: [`docs/shell-implementation-plan.md`](docs/shell-implementation-plan.md). Design in `docs/architecture.md` §Shell. |
 | 1.7 | Command palette component | `[ ]` | NOT IMPLEMENTED — spec in `docs/design-system.md` + `docs/architecture.md`. |
 | 1.8 | Sidebar / tabs / file browser | `[ ]` | NOT IMPLEMENTED — spec only. |
 | 1.9 | Theme runtime (Light/Dark/System/High-Contrast) | `[~]` | Tokens + theme JSON done; VCL wiring pending build env. |
