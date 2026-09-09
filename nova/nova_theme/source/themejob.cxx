@@ -16,16 +16,14 @@
 #include <sal/config.h>
 
 #include <com/sun/star/beans/NamedValue.hpp>
-#include <com/sun/star/beans/XPropertySet.hpp>
-#include <com/sun/star/container/XNameAccess.hpp>
 #include <com/sun/star/lang/XServiceInfo.hpp>
 #include <com/sun/star/task/XJob.hpp>
 #include <com/sun/star/uno/XComponentContext.hpp>
 
-#include <comphelper/processfactory.hxx>
+#include <comphelper/configurationhelper.hxx>
 #include <cppuhelper/implbase.hxx>
 #include <cppuhelper/supportsservice.hxx>
-#include <officecfg/Office/Common.hxx>
+#include <cppuhelper/weak.hxx>
 #include <sal/log.hxx>
 #include <tools/color.hxx>
 #include <vcl/settings.hxx>
@@ -34,6 +32,7 @@
 #include <NovaTokens.hxx>
 
 #include <string_view>
+#include <utility>
 
 namespace
 {
@@ -90,42 +89,40 @@ void setFrom(Theme eTheme, ColorRole eRole, Color& rTarget)
 /** Which Nova theme to apply. Reads /org.openoffice.Nova/Appearance/Theme when
     the Nova schema is registered (patch 0002); otherwise infers from the OS
     appearance, so this job is useful before that patch lands. */
-Theme resolveTheme()
+Theme resolveTheme(const css::uno::Reference<css::uno::XComponentContext>& rxContext)
 {
     OUString sPref;
     try
     {
-        css::uno::Reference<css::container::XNameAccess> xCfg(
-            comphelper::getProcessServiceFactory()->createInstance(
-                u"com.sun.star.configuration.ConfigurationAccess"_ustr),
-            css::uno::UNO_QUERY);
-        if (xCfg.is() && xCfg->hasByName(u"Theme"_ustr))
-            xCfg->getByName(u"Theme"_ustr) >>= sPref;
+        comphelper::ConfigurationHelper::readDirectKey(
+            rxContext, u"org.openoffice.Nova"_ustr, u"Appearance"_ustr, u"Theme"_ustr,
+            comphelper::EConfigurationModes::ReadOnly)
+            >>= sPref;
     }
     catch (const css::uno::Exception&)
     {
         // Nova schema not registered yet — fall through to OS detection.
     }
 
-    if (sPref == u"light")
-        return Theme::Light;
-    if (sPref == u"dark")
-        return Theme::Dark;
-    if (sPref == u"hc")
-        return Application::GetSettings().GetStyleSettings().GetHighContrastMode()
-                   ? Theme::HcDark
-                   : Theme::HcLight;
+    const bool bHighContrast
+        = Application::GetSettings().GetStyleSettings().GetHighContrastMode();
 
-    // "system" (or unset): follow VCL's own read of the desktop.
-    const StyleSettings& rStyle = Application::GetSettings().GetStyleSettings();
-    if (rStyle.GetHighContrastMode())
-        return rStyle.GetDarkMode() ? Theme::HcDark : Theme::HcLight;
-    return rStyle.GetDarkMode() ? Theme::Dark : Theme::Light;
+    if (sPref == u"light")
+        return bHighContrast ? Theme::HcLight : Theme::Light;
+    if (sPref == u"dark")
+        return bHighContrast ? Theme::HcDark : Theme::Dark;
+
+    // "system", "hc", or unset: follow VCL's own read of the desktop.
+    // MiscSettings::GetUseDarkMode() resolves the 'auto' appearance setting.
+    const bool bDark = MiscSettings::GetUseDarkMode();
+    if (bHighContrast)
+        return bDark ? Theme::HcDark : Theme::HcLight;
+    return bDark ? Theme::Dark : Theme::Light;
 }
 
-void applyNovaPalette()
+void applyNovaPalette(const css::uno::Reference<css::uno::XComponentContext>& rxContext)
 {
-    const Theme eTheme = resolveTheme();
+    const Theme eTheme = resolveTheme(rxContext);
 
     AllSettings aAll = Application::GetSettings();
     StyleSettings aStyle = aAll.GetStyleSettings();
@@ -211,9 +208,8 @@ void applyNovaPalette()
     setFrom(eTheme, ColorRole::BORDER_SUBTLE, aLight);
     aStyle.SetLightColor(aLight);
 
-    Color aSeparator = aStyle.GetSeparatorColor();
-    setFrom(eTheme, ColorRole::BORDER_SUBTLE, aSeparator);
-    aStyle.SetSeparatorColor(aSeparator);
+    // NB: StyleSettings exposes GetSeparatorColor() but no setter — VCL derives
+    // it from the shadow/face pair, which we have already set.
 
     aAll.SetStyleSettings(aStyle);
     Application::SetSettings(aAll);
@@ -225,14 +221,19 @@ void applyNovaPalette()
 class ThemeJob final
     : public cppu::WeakImplHelper<css::task::XJob, css::lang::XServiceInfo>
 {
+    css::uno::Reference<css::uno::XComponentContext> m_xContext;
+
 public:
-    ThemeJob() = default;
+    explicit ThemeJob(css::uno::Reference<css::uno::XComponentContext> xContext)
+        : m_xContext(std::move(xContext))
+    {
+    }
 
     // XJob
     css::uno::Any SAL_CALL
     execute(const css::uno::Sequence<css::beans::NamedValue>& /*rArgs*/) override
     {
-        applyNovaPalette();
+        applyNovaPalette(m_xContext);
         return css::uno::Any();
     }
 
@@ -254,10 +255,10 @@ public:
 } // anonymous namespace
 
 extern "C" SAL_DLLPUBLIC_EXPORT css::uno::XInterface*
-nova_theme_ThemeJob_get_implementation(css::uno::XComponentContext*,
+nova_theme_ThemeJob_get_implementation(css::uno::XComponentContext* pCtx,
                                        css::uno::Sequence<css::uno::Any> const&)
 {
-    return cppu::acquire(new ThemeJob());
+    return cppu::acquire(new ThemeJob(pCtx));
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
