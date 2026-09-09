@@ -198,21 +198,11 @@ jobs:
           ccache -C || true
           cd third_party/libreoffice
           mkdir -p "$GITHUB_WORKSPACE/dist"
-          # 1. the .dmg (make already produced it if the compile finished this run)
-          if ! find workdir/installation -name '*.dmg' -print -quit | grep -q .; then
-            echo "no .dmg yet — running the packaging module"
-            gtimeout 40m make -j4 2>&1 | tail -n 60 || true
-          fi
-          dmg="$(find workdir/installation -name '*.dmg' | head -1)"
-          if [ -n "$dmg" ]; then
-            cp "$dmg" "$GITHUB_WORKSPACE/dist/nova-office-macos-arm64.dmg"
-            echo "dmg=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "dmg=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::no .dmg produced — shipping the .app tarball only"
-          fi
-          # 2. always also ship the .app bundle (tar keeps perms + symlinks)
           app="$(find instdir -maxdepth 1 -name '*.app' | head -1)"
+          test -n "$app" || { echo "::error::no .app in instdir"; exit 1; }
+          "$GITHUB_WORKSPACE/scripts/make-macos-dmg.sh" "$app" \
+            "$GITHUB_WORKSPACE/dist/nova-office-macos-arm64.dmg"
+          # also ship the raw bundle (tar keeps perms + symlinks)
           tar -C "$(dirname "$app")" -czf "$GITHUB_WORKSPACE/dist/nova-office-macos-arm64-app.tar.gz" "$(basename "$app")"
           ls -la "$GITHUB_WORKSPACE/dist"
 

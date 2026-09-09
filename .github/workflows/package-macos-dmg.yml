@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: MPL-2.0
+#
+# Repackage an already-built macOS .app into a drag-to-Applications .dmg.
+#
+# The long build (nova-libreoffice-build-macos.yml) uploads the .app as a
+# tarball. This takes that artifact from any finished run and turns it into a
+# .dmg in a few minutes, with no recompile — so a packaging fix doesn't cost
+# another multi-hour build.
+#
+# Actions > "Package macOS .dmg" > Run workflow > give it the build's run id.
+
+name: Package macOS .dmg
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run id of the macOS build whose artifact to repackage"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read # needed to read an artifact from another run
+
+jobs:
+  dmg:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the built .app
+        uses: actions/download-artifact@v4
+        with:
+          name: nova-office-macos-arm64
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          path: incoming
+
+      - name: Unpack
+        run: |
+          ls -la incoming
+          tar xzf incoming/nova-office-macos-arm64-app.tar.gz -C incoming
+          find incoming -maxdepth 1 -name '*.app'
+
+      - name: Build the .dmg
+        run: |
+          app="$(find incoming -maxdepth 1 -name '*.app' | head -1)"
+          test -n "$app" || { echo "::error::no .app inside the artifact"; exit 1; }
+          ./scripts/make-macos-dmg.sh "$app" dist/nova-office-macos-arm64.dmg
+
+      - name: Write INSTALL.md
+        run: |
+          cat > dist/INSTALL.md <<'EOF'
+          # Nova-Office for macOS (Apple Silicon)
+
+          ## Install
+
+          1. Open `nova-office-macos-arm64.dmg`.
+          2. Drag **Nova-OfficeDev** to your Applications folder.
+          3. Eject the disk image.
+          4. Run this once, or macOS will refuse to open it:
+
+                 xattr -dr com.apple.quarantine /Applications/Nova-OfficeDev.app
+
+             The build is ad-hoc signed, not signed with an Apple Developer ID
+             and not notarised, so Gatekeeper quarantines it on download. The
+             command above removes that flag. (Right-click > Open works too, but
+             has to be repeated.)
+
+          5. Launch it from Applications or Spotlight.
+
+          ## If it still won't open
+
+              codesign --verify --deep --strict /Applications/Nova-OfficeDev.app
+              /Applications/Nova-OfficeDev.app/Contents/MacOS/soffice --version
+
+          Running the binary directly prints the real error instead of a generic
+          Finder dialog.
+          EOF
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: nova-office-macos-arm64-dmg
+          path: dist/*
+          retention-days: 14
+          if-no-files-found: error
