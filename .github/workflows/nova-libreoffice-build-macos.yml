@@ -195,7 +195,6 @@ jobs:
         id: collect
         continue-on-error: true
         run: |
-          ccache -C || true
           cd third_party/libreoffice
           mkdir -p "$GITHUB_WORKSPACE/dist"
           app="$(find instdir -maxdepth 1 -name '*.app' | head -1)"
