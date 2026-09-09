@@ -172,9 +172,10 @@ jobs:
         if: steps.result.outputs.done == 'true'
         continue-on-error: true # a packaging failure must not lose the portable build
         run: |
-          # The build is done, so ccache is no longer needed this run and
-          # future runs are guarded by .github/build-done-arm — reclaim its
-          # ~8 GB so RPM packaging has room to work.
+          # RPM packaging needs a buildroot and the runner is disk-tight, so
+          # reclaim ccache's ~8 GB — but only when we're actually about to
+          # package. This costs a cold rebuild if build-done-arm is ever
+          # removed, which is the accepted trade on a 45 GB runner.
           ccache -C || true
           df -h /
           cd third_party/libreoffice
