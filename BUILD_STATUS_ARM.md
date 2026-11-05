@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: MPL-2.0 -->
 # Nova-Office LibreOffice build (aarch64) — status
 
-- Last run: [#265](https://github.com/pwndhull/Nova-office/actions/runs/41923485037) — 2026-11-04 22:14 UTC
+- Last run: [#266](https://github.com/pwndhull/Nova-office/actions/runs/41957659646) — 2026-11-05 02:49 UTC
 - Build completed: **false**   ·   resume attempts: 0/20
 
 ```
