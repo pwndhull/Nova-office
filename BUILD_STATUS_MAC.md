@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: MPL-2.0 -->
 # Nova-Office LibreOffice build (macOS arm64) — status
 
-- Last run: [#310](https://github.com/pwndhull/Nova-office/actions/runs/45008758699) — 2026-11-22 09:41 UTC
+- Last run: [#311](https://github.com/pwndhull/Nova-office/actions/runs/45051201527) — 2026-11-22 17:45 UTC
 - Build completed: **false**   ·   resume attempts: 0/20
 
 ```
